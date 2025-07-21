@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become an Apprentice - Craftiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-xl w-full space-y-8">
+        <div>
+            <a href="index.html" class="text-3xl font-bold text-center block text-gray-900">Craftiva</a>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Become an Apprentice
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Showcase your skills and get hired.
+            </p>
+        </div>
+        <form class="mt-8" action="#" method="POST">
+            <div class="bg-white p-8 rounded-lg shadow-md space-y-6">
+                <h3 class="text-xl font-semibold text-gray-800">Your Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="apprentice-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" name="name" id="apprentice-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="apprentice-skill" class="block text-sm font-medium text-gray-700">Primary Skill</label>
+                        <input type="text" name="skill" id="apprentice-skill" required placeholder="e.g., Video Editing" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="apprentice-location" class="block text-sm font-medium text-gray-700">Location</label>
+                        <input type="text" name="location" id="apprentice-location" required placeholder="City, Country" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="apprentice-contact" class="block text-sm font-medium text-gray-700">Contact Info</label>
+                        <input type="text" name="contact" id="apprentice-contact" required placeholder="Email or Phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label for="apprentice-samples" class="block text-sm font-medium text-gray-700">Work Samples</label>
+                    <p class="text-xs text-gray-500 mb-2">Upload files or provide a link to your portfolio.</p>
+                    <input type="file" name="samples_file" id="apprentice-samples-file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <input type="url" name="samples_link" id="apprentice-samples-link" placeholder="Or paste portfolio link here (e.g., Behance, GitHub)" class="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <hr class="my-6">
+
+                <h3 class="text-xl font-semibold text-gray-800">Subscription</h3>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                    <p class="font-bold text-blue-800">Apprentice Plan: $1.50 / month</p>
+                    <p class="text-sm text-blue-700">This fee helps us maintain the directory and connect you with clients.</p>
+                </div>
+                
+                <div class="mt-6">
+                    <p class="text-sm font-medium text-gray-700 mb-3">Payment Method</p>
+                    <div class="space-y-4">
+                        <button type="button" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900">Pay with Paystack / Flutterwave</button>
+                        <div>
+                            <label for="manual-payment" class="block text-sm font-medium text-gray-700">Or Upload Proof of Manual Payment</label>
+                            <input type="file" name="manual_payment" id="manual-payment" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                            <p class="text-xs text-gray-500 mt-1">Your account will be reviewed and activated within 24 hours.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-6">
+                    Complete Apprentice Sign Up
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

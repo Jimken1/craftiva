@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- product of jimken_1 -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craftiva - Discover, Earn, and Showcase Your Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .hero-bg {
+            background-color: #F8F9FA;
+            background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-900">Craftiva</a>
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
+                <a href="#faq" class="text-gray-600 hover:text-gray-900">FAQ</a>
+                <a href="#" class="text-gray-600 hover:text-gray-900">Gallery</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="#" onclick="goToLogin()" class="text-gray-600 hover:text-gray-900 font-medium">Log In</a>
+                <a href="#" class="bg-gray-900 text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-gray-800 btn">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="hero-bg pt-32 pb-20">
+        <div class="container mx-auto px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+                    We help Africa’s young workforce get discovered, earn money, and showcase their work.
+                </h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-10">
+                    For photographers, designers, artisans, students, video editors, and recent grads. A simple platform to earn, grow, and get seen — all in one place.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="#" onclick="goToMemberSignup()" class="w-full sm:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-700 btn">
+                        Sign Up as Member
+                    </a>
+                    <a href="#" onclick="goToApprenticeSignup()" class="w-full sm:w-auto bg-white text-blue-600 border border-blue-600 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-50 btn">
+                        Sign Up as Apprentice
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- "For Who" Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-2">Who is Craftiva for?</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">We're building a home for every creative hustle. If you have a skill, we have a space for you.</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 text-center">
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <i data-feather="camera" class="w-12 h-12 mx-auto text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Photographers</h3>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <i data-feather="figma" class="w-12 h-12 mx-auto text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Designers</h3>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <i data-feather="pen-tool" class="w-12 h-12 mx-auto text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Artisans</h3>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <i data-feather="book-open" class="w-12 h-12 mx-auto text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Students</h3>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <i data-feather="video" class="w-12 h-12 mx-auto text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Video Editors</h3>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                    <i data-feather="award" class="w-12 h-12 mx-auto text-blue-600 mb-3"></i>
+                    <h3 class="font-semibold">Recent Grads</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">One Platform, Endless Opportunities</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Feature 1: Gallery -->
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="flex items-center justify-center bg-blue-100 rounded-full w-16 h-16 mb-6">
+                        <i data-feather="image" class="w-8 h-8 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Showcase Your Work</h3>
+                    <p class="text-gray-600">Our free gallery lets you upload your creative portfolio, get feedback, and be discovered by a community that cares.</p>
+                </div>
+                <!-- Feature 2: Earn -->
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="flex items-center justify-center bg-green-100 rounded-full w-16 h-16 mb-6">
+                        <i data-feather="dollar-sign" class="w-8 h-8 text-green-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Earn Through Your Hustle</h3>
+                    <p class="text-gray-600">Monetize your network through referrals, take on paid jobs as an apprentice, and win prizes in competitions.</p>
+                </div>
+                <!-- Feature 3: Grow -->
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="flex items-center justify-center bg-purple-100 rounded-full w-16 h-16 mb-6">
+                        <i data-feather="bar-chart-2" class="w-8 h-8 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Grow and Get Seen</h3>
+                    <p class="text-gray-600">Climb the leaderboard, access exclusive events, and connect with mentors. Our subscription plans unlock your full potential.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-white">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Frequently Asked Questions</h2>
+            <div class="space-y-6">
+                <!-- FAQ Item 1 -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-2">Is it free to use?</h3>
+                    <p class="text-gray-600">Yes! Basic use of Craftiva, including the gallery and referrals, is completely free. Some advanced features like the apprentice directory and leaderboard require a subscription.</p>
+                </div>
+                <!-- FAQ Item 2 -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-2">How do I earn money?</h3>
+                    <p class="text-gray-600">You can earn through our generous referral program, by taking on paid jobs as an apprentice, and by participating in surveys and competitions (coming soon!).</p>
+                </div>
+                <!-- FAQ Item 3 -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-2">Can non-creatives use the platform?</h3>
+                    <p class="text-gray-600">Absolutely! You can sign up as a member to browse the gallery, discover amazing talent, and hire skilled apprentices for your projects.</p>
+                </div>
+                 <!-- FAQ Item 4 -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-2">Can I pay in my local currency?</h3>
+                    <p class="text-gray-600">Yes! Our payment system includes a currency calculator to show you the equivalent price in your local currency before you pay.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="bg-blue-600 text-white">
+        <div class="container mx-auto px-6 py-20 text-center">
+            <h2 class="text-4xl font-bold mb-4">Ready to Join Africa's Creative Hub?</h2>
+            <p class="text-blue-200 text-lg mb-8 max-w-2xl mx-auto">Sign up today and start your journey. Whether you're here to earn, learn, or hire, your next opportunity is waiting.</p>
+            <a href="#" class="bg-white text-blue-600 px-10 py-4 rounded-lg font-bold text-lg shadow-xl hover:bg-gray-100 btn">Get Started for Free</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Craftiva</h3>
+                    <p class="text-sm">The all-in-one platform for Africa's young creators and hustlers.</p>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#features" class="hover:text-white">Features</a></li>
+                        <li><a href="#" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white">Gallery</a></li>
+                        <li><a href="#" class="hover:text-white">Apprentices</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Contact Support</a></li>
+                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white"><i data-feather="twitter"></i></a>
+                        <a href="#" class="hover:text-white"><i data-feather="instagram"></i></a>
+                        <a href="#" class="hover:text-white"><i data-feather="facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-10 border-t border-gray-800 pt-6 text-center text-sm">
+                <p>&copy; 2025 Craftiva. All Rights Reserved. Made with ❤️ in Nigeria.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+
+        function goToLogin() {
+           
+            window.location.href = './login.html';
+        }
+
+        function goToMemberSignup() {
+            window.location.href = './signup-member.html';
+        }   
+
+        function goToApprenticeSignup() {
+            window.location.href = './signup-apprentice.html';
+        }
+
+    </script>
+</body>
+</html>

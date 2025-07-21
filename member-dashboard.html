@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard - Craftiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        /* Custom scrollbar for sidebar */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+        .nav-link.active {
+            background-color: #EBF4FF;
+            color: #2563EB;
+            font-weight: 600;
+        }
+        .nav-link.locked {
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        .nav-link.locked .lock-icon {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="flex h-screen bg-gray-100">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 hidden md:flex flex-col transition-all duration-300">
+        <div class="px-6 py-5 border-b">
+            <a href="#" class="text-2xl font-bold text-gray-900">Craftiva</a>
+        </div>
+        <nav class="flex-1 overflow-y-auto sidebar-scroll py-4">
+            <ul class="space-y-1 px-4">
+                <!-- Main Tabs -->
+                <li><a href="#gallery" class="nav-link flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 active"><i data-feather="image" class="w-5 h-5 mr-3"></i> Gallery</a></li>
+                <li><a href="#subscription" class="nav-link flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100"><i data-feather="star" class="w-5 h-5 mr-3"></i> Subscription</a></li>
+                <li><a href="#earnings" class="nav-link flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100"><i data-feather="dollar-sign" class="w-5 h-5 mr-3"></i> Earnings</a></li>
+                <li><a href="#refer" class="nav-link flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100"><i data-feather="gift" class="w-5 h-5 mr-3"></i> Refer a Friend</a></li>
+                
+                <!-- Locked Tabs -->
+                <li class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Subscription Only</li>
+                <li><a href="#leaderboard" class="nav-link locked flex items-center px-4 py-2.5 rounded-lg"><i data-feather="bar-chart-2" class="w-5 h-5 mr-3"></i> Leaderboard <i data-feather="lock" class="w-4 h-4 ml-auto lock-icon"></i></a></li>
+                <li><a href="#apprentices" class="nav-link locked flex items-center px-4 py-2.5 rounded-lg"><i data-feather="users" class="w-5 h-5 mr-3"></i> Find Apprentices <i data-feather="lock" class="w-4 h-4 ml-auto lock-icon"></i></a></li>
+
+                <!-- Coming Soon -->
+                <li class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Coming Soon</li>
+                <li><a href="#events" class="nav-link locked flex items-center px-4 py-2.5 rounded-lg"><i data-feather="calendar" class="w-5 h-5 mr-3"></i> Events & Competitions <span class="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full ml-auto">Soon</span></a></li>
+                <li><a href="#wallet" class="nav-link locked flex items-center px-4 py-2.5 rounded-lg opacity-50"><i data-feather="credit-card" class="w-5 h-5 mr-3"></i> Tickets Wallet <i data-feather="lock" class="w-4 h-4 ml-auto lock-icon"></i></a></li>
+                <li><a href="#store" class="nav-link locked flex items-center px-4 py-2.5 rounded-lg"><i data-feather="shopping-bag" class="w-5 h-5 mr-3"></i> Online Store <span class="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full ml-auto">Soon</span></a></li>
+                <li><a href="#community" class="nav-link locked flex items-center px-4 py-2.5 rounded-lg"><i data-feather="message-square" class="w-5 h-5 mr-3"></i> Community <span class="text-xs bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full ml-auto">Soon</span></a></li>
+
+                <!-- Other -->
+                <li class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Resources</li>
+                <li><a href="#terms" class="nav-link flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100"><i data-feather="file-text" class="w-5 h-5 mr-3"></i> Terms & Conditions</a></li>
+                <li><a href="#rules" class="nav-link flex items-center px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100"><i data-feather="shield" class="w-5 h-5 mr-3"></i> Referral Rules</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 flex items-center justify-between px-6 py-3">
+            <div class="flex items-center">
+                <button id="menu-button" class="md:hidden mr-4 text-gray-600">
+                    <i data-feather="menu" class="w-6 h-6"></i>
+                </button>
+                <h1 class="text-2xl font-bold text-gray-800" id="page-title">Gallery</h1>
+            </div>
+            <div class="flex items-center space-x-5">
+                <div class="text-right">
+                    <p class="font-semibold text-gray-800">John Doe</p>
+                    <p class="text-sm text-gray-500">Photographer</p>
+                </div>
+                <img class="w-12 h-12 rounded-full object-cover" src="https://placehold.co/100x100/EBF4FF/3B82F6?text=JD" alt="User profile photo">
+                <button class="text-gray-500 hover:text-gray-800"><i data-feather="log-out" class="w-6 h-6"></i></button>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6 md:p-8">
+            <div id="content">
+                <!-- Welcome & Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="md:col-span-3 bg-white p-6 rounded-lg shadow-sm">
+                        <h2 class="text-2xl font-bold text-gray-800">Welcome back, John!</h2>
+                        <p class="text-gray-600">Here's what's happening on your Craftiva account today.</p>
+                    </div>
+                    <div class="bg-blue-500 text-white p-6 rounded-lg shadow-md flex items-center justify-between">
+                        <div>
+                            <p class="text-sm uppercase font-semibold opacity-80">Points Balance</p>
+                            <p class="text-4xl font-bold">1,250</p>
+                            <p class="text-sm opacity-80">Equivalent to $125.00</p>
+                        </div>
+                        <i data-feather="award" class="w-12 h-12 opacity-50"></i>
+                    </div>
+                    <div class="bg-green-500 text-white p-6 rounded-lg shadow-md flex items-center justify-between">
+                        <div>
+                            <p class="text-sm uppercase font-semibold opacity-80">Total Referrals</p>
+                            <p class="text-4xl font-bold">25</p>
+                            <p class="text-sm opacity-80">3 new this month</p>
+                        </div>
+                        <i data-feather="users" class="w-12 h-12 opacity-50"></i>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-sm uppercase font-semibold text-gray-500">Subscription</p>
+                            <p class="text-2xl font-bold text-gray-800">Free Plan</p>
+                            <a href="#subscription" class="text-sm text-blue-600 font-semibold hover:underline">Upgrade Now</a>
+                        </div>
+                        <i data-feather="star" class="w-10 h-10 text-yellow-400"></i>
+                    </div>
+                </div>
+
+                <!-- Tab Content Area -->
+                <div id="tab-content" class="bg-white p-6 rounded-lg shadow-sm">
+                    <!-- Gallery Content (Default) -->
+                    <div id="gallery-content" class="tab-pane active">
+                        <h3 class="text-xl font-bold mb-4">Your Gallery</h3>
+                        <p>This is where your uploaded creative work will appear.</p>
+                    </div>
+                    <!-- Other Tab Panes (hidden by default) -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        feather.replace();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageTitle = document.getElementById('page-title');
+            const tabContentContainer = document.getElementById('tab-content');
+
+            // --- Mobile Sidebar Toggle ---
+            menuButton.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+            });
+
+            // --- Tab Content Templates ---
+            const tabContents = {
+                gallery: `
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">Your Gallery</h3>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-700">Upload New Work</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <div class="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+                        <div class="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+                        <div class="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+                        <div class="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+                    </div>
+                    <p class="text-center text-gray-500 mt-8">You haven't uploaded any work yet.</p>`,
+                subscription: `
+                    <h3 class="text-xl font-bold mb-6">Choose Your Plan</h3>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                        <!-- Free Plan -->
+                        <div class="border-2 border-blue-600 rounded-lg p-6">
+                            <h4 class="text-lg font-bold">Free</h4>
+                            <p class="text-3xl font-extrabold my-3">$0<span class="text-base font-normal text-gray-500">/mo</span></p>
+                            <ul class="space-y-2 text-sm text-gray-600 mb-6"><li>10% referral revenue</li><li>Basic access</li></ul>
+                            <button class="w-full bg-gray-200 text-gray-500 py-2 rounded-lg font-semibold cursor-default">Current Plan</button>
+                        </div>
+                        <!-- Creative Plan -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-bold">Creative</h4>
+                            <p class="text-3xl font-extrabold my-3">$3<span class="text-base font-normal text-gray-500">/mo</span></p>
+                            <ul class="space-y-2 text-sm text-gray-600 mb-6"><li>20% referral revenue</li><li>Extra tabs</li></ul>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">Upgrade</button>
+                        </div>
+                        <!-- Entrepreneur Plan -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-bold">Entrepreneur</h4>
+                            <p class="text-3xl font-extrabold my-3">$8<span class="text-base font-normal text-gray-500">/mo</span></p>
+                            <ul class="space-y-2 text-sm text-gray-600 mb-6"><li>30% referral revenue</li><li>Leaderboard access</li></ul>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">Upgrade</button>
+                        </div>
+                        <!-- Visionary Plan -->
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="text-lg font-bold">Visionary</h4>
+                            <p class="text-3xl font-extrabold my-3">$25<span class="text-base font-normal text-gray-500">/mo</span></p>
+                            <ul class="space-y-2 text-sm text-gray-600 mb-6"><li>50%+ referral revenue</li><li>Full access</li></ul>
+                            <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">Upgrade</button>
+                        </div>
+                    </div>`,
+                earnings: `
+                    <h3 class="text-xl font-bold mb-6">Your Earnings</h3>
+                    <p>Track your earnings from referrals and other sources here.</p>`,
+                refer: `
+                    <h3 class="text-xl font-bold mb-4">Refer a Friend & Earn</h3>
+                    <p class="text-gray-600 mb-6">Share your unique link with friends. When they sign up, you earn!</p>
+                    <div class="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
+                        <p class="text-gray-700 font-mono text-sm">https://craftiva.com/ref/john123</p>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-700">Copy Link</button>
+                    </div>`,
+                leaderboard: `<h3 class="text-xl font-bold mb-4">Leaderboard</h3><p>This feature is locked. Upgrade to the Entrepreneur plan to access.</p>`,
+                apprentices: `<h3 class="text-xl font-bold mb-4">Find Apprentices</h3><p>This feature is locked. Upgrade your plan to hire skilled apprentices.</p>`,
+                terms: `<h3 class="text-xl font-bold mb-4">Terms & Conditions</h3><p>Your terms and conditions content goes here.</p>`,
+                rules: `<h3 class="text-xl font-bold mb-4">Referral Rules</h3><p>Your referral rules content goes here.</p>`,
+                locked: `<h3 class="text-xl font-bold mb-4">Feature Locked</h3><p>This feature is coming soon or requires a subscription upgrade. Stay tuned!</p>`
+            };
+            
+            // --- Tab Switching Logic ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (this.classList.contains('locked')) {
+                        // Optionally show a modal or toast message
+                        console.log('This feature is locked.');
+                        return;
+                    }
+
+                    // Update active link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update page title
+                    pageTitle.textContent = this.textContent.replace('Soon','').replace('Refer a Friend', 'Referrals');
+
+                    // Update content
+                    const tabName = this.getAttribute('href').substring(1);
+                    tabContentContainer.innerHTML = tabContents[tabName] || tabContents['locked'];
+                    
+                    // Close mobile sidebar on link click
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Set initial content
+            tabContentContainer.innerHTML = tabContents['gallery'];
+        });
+    </script>
+</body>
+</html>
