@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craftnet - Discover, Earn, and Showcase Your Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .hero-bg {
+            background-color: #F8F9FA;
+            background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-900">Craftnet</a>
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
+                <a href="#faq" class="text-gray-600 hover:text-gray-900">FAQ</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="login-supabase.html" class="text-gray-600 hover:text-gray-900 font-medium">Log In</a>
+                <a href="signup-member-supabase.html" class="bg-gray-900 text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-gray-800 btn">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="hero-bg pt-32 pb-20">
+        <div class="container mx-auto px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+                    We help Africa's young workforce get discovered, earn money, and showcase their work.
+                </h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-10">
+                    For photographers, designers, artisans, students, video editors, and recent grads. A simple platform to earn, grow, and get seen — all in one place.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="signup-member-supabase.html" class="w-full sm:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-700 btn">
+                        Sign Up as Member
+                    </a>
+                    <a href="signup-apprentice-supabase.html" class="w-full sm:w-auto bg-white text-blue-600 border border-blue-600 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-50 btn">
+                        Sign Up as Apprentice
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">One Platform, Endless Opportunities</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h3 class="text-2xl font-bold mb-3">Showcase Your Work</h3>
+                    <p class="text-gray-600">Our free gallery lets you upload your creative portfolio, get feedback, and be discovered.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h3 class="text-2xl font-bold mb-3">Earn Through Your Hustle</h3>
+                    <p class="text-gray-600">Monetize your network through referrals, take on paid jobs as an apprentice, and win prizes.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h3 class="text-2xl font-bold mb-3">Grow and Get Seen</h3>
+                    <p class="text-gray-600">Climb the leaderboard, access exclusive events, and connect with mentors.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-white">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Frequently Asked Questions</h2>
+            <div class="space-y-6">
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-2">Is it free to use?</h3>
+                    <p class="text-gray-600">Yes! Basic use is free. Some advanced features require a subscription.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-2">How do I earn money?</h3>
+                    <p class="text-gray-600">Through referrals, jobs as an apprentice, and future competitions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400">
+        <div class="container mx-auto px-6 py-12 text-center">
+            <p>&copy; 2025 Craftiva. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

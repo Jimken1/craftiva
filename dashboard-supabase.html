@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard - Craftnet</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                background-color: #f3f4f6;
+            }
+            .nav-link.active {
+                color: #1d4ed8;
+                border-bottom-color: #1d4ed8;
+            }
+            .stat-card {
+                transition: transform 0.2s ease-in-out,
+                    box-shadow 0.2s ease-in-out;
+            }
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .modal {
+                display: none;
+            }
+            .modal.active {
+                display: flex;
+            }
+
+            /* Gallery Styles */
+            .line-clamp-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /* Image Viewer Styles */
+            #image-viewer-modal {
+                background: rgba(0, 0, 0, 0.95);
+            }
+
+            #image-viewer-modal img {
+                max-height: 90vh;
+                max-width: 90vw;
+            }
+
+            /* Notification Styles */
+            .notification {
+                animation: slideInRight 0.3s ease-out;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                }
+                to {
+                    transform: translateX(0);
+                }
+            }
+
+            /* Gallery Image Hover Effects */
+            .gallery-image-container {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .gallery-image-container img {
+                transition: transform 0.3s ease;
+            }
+
+            .gallery-image-container:hover img {
+                transform: scale(1.05);
+            }
+
+            /* Loading States */
+            .image-loading {
+                opacity: 0.5;
+                transition: opacity 0.3s ease;
+            }
+
+            .image-loaded {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body class="min-h-screen">
+        <div
+            id="loading-screen"
+            class="fixed inset-0 bg-white flex items-center justify-center z-50"
+        >
+            <div
+                class="animate-spin ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"
+            ></div>
+        </div>
+
+        <div id="dashboard-layout" class="min-h-screen bg-gray-100 hidden">
+            <header class="bg-white shadow-md sticky top-0 z-40">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        <a
+                            href="craftnet-supabase.html"
+                            class="text-2xl font-bold text-gray-900"
+                            >Craftnet</a
+                        >
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <p
+                                    id="user-name"
+                                    class="font-semibold text-gray-800 text-sm"
+                                >
+                                    Loading...
+                                </p>
+                                <p
+                                    id="user-role-info"
+                                    class="text-xs text-gray-500 capitalize"
+                                >
+                                    Loading...
+                                </p>
+                            </div>
+                            <img
+                                id="user-avatar"
+                                class="w-10 h-10 rounded-full object-cover"
+                                src="https://placehold.co/100x100/EBF4FF/3B82F6?text=C"
+                                alt="User profile photo"
+                            />
+                            <button
+                                id="logout-button"
+                                class="text-gray-500 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100"
+                            >
+                                <i data-feather="log-out" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <nav
+                        id="main-nav"
+                        class="flex space-x-4 sm:space-x-8 border-t border-gray-200 -mb-px overflow-x-auto"
+                    ></nav>
+                </div>
+            </header>
+
+            <main
+                id="main-content"
+                class="container mx-auto p-4 sm:p-6 lg:p-8"
+            ></main>
+        </div>
+
+        <div
+            id="upload-modal"
+            class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4"
+        >
+            <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+                <h3 class="text-2xl font-bold mb-6">Upload Your Work</h3>
+                <form id="upload-work-form">
+                    <div class="mb-4">
+                        <label
+                            for="upload-title"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Title</label
+                        >
+                        <input
+                            type="text"
+                            id="upload-title"
+                            placeholder="e.g., Sunset over the Hills"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+                    <div class="mb-4">
+                        <label
+                            for="upload-description"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Description</label
+                        >
+                        <textarea
+                            id="upload-description"
+                            rows="3"
+                            placeholder="A short description of your work..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
+                            required
+                        ></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label
+                            for="upload-file"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Image File</label
+                        >
+                        <input
+                            type="file"
+                            id="upload-file"
+                            accept="image/*"
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            required
+                        />
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button
+                            type="button"
+                            id="cancel-upload"
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            id="submit-upload"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
+                        >
+                            <span
+                                id="upload-spinner"
+                                class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+                            ></span>
+                            Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div
+            id="payment-modal"
+            class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4"
+        ></div>
+
+        <div
+            id="edit-profile-modal"
+            class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4"
+        >
+            <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+                <h3 class="text-2xl font-bold mb-6">Edit Your Profile</h3>
+                <form id="edit-profile-form">
+                    <div class="mb-4">
+                        <label
+                            for="edit-name"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Full Name</label
+                        >
+                        <input
+                            type="text"
+                            id="edit-name"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+                    <div class="mb-6">
+                        <label
+                            for="edit-creative-type"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Creative Type</label
+                        >
+                        <select
+                            id="edit-creative-type"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-blue-500"
+                        >
+                            <option>Photographer</option>
+                            <option>Designer</option>
+                            <option>Artisan</option>
+                            <option>Student</option>
+                            <option>Programmer</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button
+                            type="button"
+                            id="cancel-edit-profile"
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            id="submit-edit-profile"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
+                        >
+                            <span
+                                id="edit-spinner"
+                                class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+                            ></span>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete Post Confirmation Modal -->
+        <div
+            id="delete-post-modal"
+            class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4"
+        >
+            <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+                <h3 class="text-2xl font-bold mb-6 text-red-600">
+                    Delete Post
+                </h3>
+                <p class="text-gray-700 mb-6">
+                    Are you sure you want to delete "<span
+                        id="delete-post-title"
+                    ></span
+                    >"? This action cannot be undone.
+                </p>
+                <div class="flex justify-end space-x-4">
+                    <button
+                        type="button"
+                        id="cancel-delete-post"
+                        class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        id="confirm-delete-post"
+                        class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 flex items-center"
+                    >
+                        <span
+                            id="delete-spinner"
+                            class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+                        ></span>
+                        Delete Post
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="dashboard-supabase.js"></script>
+    </body>
+</html>
