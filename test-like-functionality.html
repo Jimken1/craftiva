@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test Like Functionality</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 p-8">
+        <div class="max-w-2xl mx-auto">
+            <h1 class="text-2xl font-bold mb-6">Test Like Functionality</h1>
+
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h2 class="text-lg font-semibold mb-4">Database Status</h2>
+                <div id="db-status" class="text-sm text-gray-600">
+                    Checking...
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h2 class="text-lg font-semibold mb-4">Test Like</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2"
+                            >Post ID:</label
+                        >
+                        <input
+                            type="text"
+                            id="post-id"
+                            class="w-full p-2 border rounded"
+                            placeholder="Enter post ID"
+                        />
+                    </div>
+                    <button
+                        id="test-like"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                        Test Like/Unlike
+                    </button>
+                    <div id="like-result" class="text-sm"></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-4">Console Log</h2>
+                <div
+                    id="console-log"
+                    class="bg-gray-900 text-green-400 p-4 rounded text-sm font-mono h-64 overflow-y-auto"
+                ></div>
+            </div>
+        </div>
+
+        <script type="module">
+            import {
+                supabase,
+                checkRequiredTables,
+                togglePostLike,
+                checkUserLike,
+            } from "./supabase-auth.js";
+
+            // Override console.log to capture output
+            const originalLog = console.log;
+            const originalError = console.error;
+            const consoleLogDiv = document.getElementById("console-log");
+
+            function addToLog(message, type = "log") {
+                const timestamp = new Date().toLocaleTimeString();
+                const color =
+                    type === "error" ? "text-red-400" : "text-green-400";
+                consoleLogDiv.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+                consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
+            }
+
+            console.log = function (...args) {
+                originalLog.apply(console, args);
+                addToLog(args.join(" "));
+            };
+
+            console.error = function (...args) {
+                originalError.apply(console, args);
+                addToLog(args.join(" "), "error");
+            };
+
+            // Check database status
+            async function checkDatabaseStatus() {
+                const statusDiv = document.getElementById("db-status");
+                try {
+                    console.log("Checking database tables...");
+                    const status = await checkRequiredTables();
+                    statusDiv.innerHTML = `
+                    <div class="mb-2">
+                        <span class="font-medium">Posts table:</span> 
+                        <span class="${
+                            status.posts ? "text-green-600" : "text-red-600"
+                        }">${status.posts ? "✓ Exists" : "✗ Missing"}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="font-medium">Post_likes table:</span> 
+                        <span class="${
+                            status.post_likes
+                                ? "text-green-600"
+                                : "text-red-600"
+                        }">${
+                        status.post_likes ? "✓ Exists" : "✗ Missing"
+                    }</span>
+                    </div>
+                `;
+                } catch (error) {
+                    statusDiv.innerHTML = `<div class="text-red-600">Error checking tables: ${error.message}</div>`;
+                    console.error("Error checking database status:", error);
+                }
+            }
+
+            // Test like functionality
+            async function testLike() {
+                const postId = document.getElementById("post-id").value;
+                const resultDiv = document.getElementById("like-result");
+
+                if (!postId) {
+                    resultDiv.innerHTML =
+                        '<div class="text-red-600">Please enter a post ID</div>';
+                    return;
+                }
+
+                try {
+                    console.log("Testing like functionality for post:", postId);
+
+                    // Get current user
+                    const {
+                        data: { user },
+                        error: userError,
+                    } = await supabase.auth.getUser();
+                    if (userError || !user) {
+                        resultDiv.innerHTML =
+                            '<div class="text-red-600">Not logged in</div>';
+                        return;
+                    }
+
+                    console.log("Current user:", user.id);
+
+                    // Check if user has already liked the post
+                    const hasLiked = await checkUserLike(postId, user.id);
+                    console.log("User has liked post:", hasLiked);
+
+                    // Toggle the like
+                    const result = await togglePostLike(postId, user.id);
+                    console.log("Toggle result:", result);
+
+                    resultDiv.innerHTML = `
+                    <div class="text-green-600">
+                        Success! Post is now ${
+                            result.liked ? "liked" : "unliked"
+                        }
+                    </div>
+                `;
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`;
+                    console.error("Test like error:", error);
+                }
+            }
+
+            // Event listeners
+            document
+                .getElementById("test-like")
+                .addEventListener("click", testLike);
+
+            // Initialize
+            checkDatabaseStatus();
+        </script>
+    </body>
+</html>

@@ -155,7 +155,19 @@ export async function handleApprenticeSignup(
 }
 
 export async function handleLogout() {
-    await supabase.auth.signOut();
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Logout error:", error);
+            throw error;
+        }
+        // Redirect to login page after successful logout
+        window.location.href = "login-supabase.html";
+    } catch (error) {
+        console.error("Logout failed:", error);
+        // Still redirect even if there's an error
+        window.location.href = "login-supabase.html";
+    }
 }
 
 // --- Helper Functions for Database Operations ---
@@ -316,6 +328,44 @@ export async function getUserPosts(userId, limit = 20) {
     }
 }
 
+// Get posts by a specific user ID (for viewing other users' galleries)
+export async function getUserPostsById(
+    targetUserId,
+    currentUserId = null,
+    limit = 20
+) {
+    try {
+        // Get posts with like counts
+        const { data: posts, error: postsError } = await supabase
+            .from("posts")
+            .select("*")
+            .eq("user_id", targetUserId)
+            .order("created_at", { ascending: false })
+            .limit(limit);
+
+        if (postsError) throw postsError;
+
+        // Check which posts the current user has liked (if currentUserId is provided)
+        const postsWithLikes = await Promise.all(
+            posts.map(async (post) => {
+                let userLiked = false;
+                if (currentUserId) {
+                    userLiked = await checkUserLike(post.id, currentUserId);
+                }
+                return {
+                    ...post,
+                    user_liked: userLiked,
+                };
+            })
+        );
+
+        return postsWithLikes;
+    } catch (error) {
+        console.error("Error getting user posts by ID:", error);
+        throw error;
+    }
+}
+
 // Delete a post
 export async function deletePost(postId, userId) {
     try {
@@ -385,10 +435,19 @@ export async function togglePostLike(postId, userId) {
 
             if (unlikeError) throw unlikeError;
 
-            // Decrease like count
+            // Decrease like count - first get current likes
+            const { data: currentPost, error: fetchError } = await supabase
+                .from("posts")
+                .select("likes")
+                .eq("id", postId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const newLikeCount = Math.max((currentPost.likes || 0) - 1, 0);
             const { error: updateError } = await supabase
                 .from("posts")
-                .update({ likes: supabase.sql`GREATEST(likes - 1, 0)` })
+                .update({ likes: newLikeCount })
                 .eq("id", postId);
 
             if (updateError) throw updateError;
@@ -406,10 +465,19 @@ export async function togglePostLike(postId, userId) {
 
             if (likeError) throw likeError;
 
-            // Increase like count
+            // Increase like count - first get current likes
+            const { data: currentPost, error: fetchError } = await supabase
+                .from("posts")
+                .select("likes")
+                .eq("id", postId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const newLikeCount = (currentPost.likes || 0) + 1;
             const { error: updateError } = await supabase
                 .from("posts")
-                .update({ likes: supabase.sql`likes + 1` })
+                .update({ likes: newLikeCount })
                 .eq("id", postId);
 
             if (updateError) throw updateError;
@@ -709,5 +777,403 @@ export async function checkStorageBucket(bucketName) {
             error
         );
         return false;
+    }
+}
+
+// --- Job Request System Functions ---
+
+// Create a new job request
+export async function createJobRequest(userId, jobData) {
+    try {
+        const { data, error } = await supabase
+            .from("job_requests")
+            .insert({
+                client_id: userId,
+                title: jobData.title,
+                description: jobData.description,
+                budget_min: jobData.budgetMin,
+                budget_max: jobData.budgetMax,
+                skills_required: jobData.skillsRequired,
+                location: jobData.location,
+                deadline: jobData.deadline,
+                status: "open",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error creating job request:", error);
+        throw error;
+    }
+}
+
+// Get all job requests (for apprentices to browse)
+export async function getAllJobRequests(filters = {}) {
+    try {
+        let query = supabase
+            .from("job_requests")
+            .select(
+                `
+                *,
+                client:profiles!job_requests_client_id_fkey(
+                    id,
+                    name,
+                    email,
+                    creative_type,
+                    location
+                )
+            `
+            )
+            .eq("status", "open")
+            .order("created_at", { ascending: false });
+
+        // Apply filters
+        if (filters.skillsRequired) {
+            query = query.contains("skills_required", [filters.skillsRequired]);
+        }
+        if (filters.location) {
+            query = query.ilike("location", `%${filters.location}%`);
+        }
+        if (filters.budgetMin) {
+            query = query.gte("budget_max", filters.budgetMin);
+        }
+        if (filters.budgetMax) {
+            query = query.lte("budget_min", filters.budgetMax);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching job requests:", error);
+        throw error;
+    }
+}
+
+// Get job requests created by a specific client
+export async function getClientJobRequests(clientId) {
+    try {
+        const { data, error } = await supabase
+            .from("job_requests")
+            .select(
+                `
+                *,
+                applications:job_applications(
+                    id,
+                    status,
+                    created_at,
+                    apprentice:profiles!job_applications_apprentice_id_fkey(
+                        id,
+                        name,
+                        skill,
+                        location
+                    )
+                )
+            `
+            )
+            .eq("client_id", clientId)
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching client job requests:", error);
+        throw error;
+    }
+}
+
+// Get job applications for an apprentice
+export async function getApprenticeJobApplications(apprenticeId) {
+    try {
+        const { data, error } = await supabase
+            .from("job_applications")
+            .select(
+                `
+                *,
+                job_request:job_requests(
+                    id,
+                    title,
+                    description,
+                    budget_min,
+                    budget_max,
+                    deadline,
+                    status,
+                    client:profiles!job_requests_client_id_fkey(
+                        id,
+                        name,
+                        email,
+                        creative_type
+                    )
+                )
+            `
+            )
+            .eq("apprentice_id", apprenticeId)
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching apprentice applications:", error);
+        throw error;
+    }
+}
+
+// Apply for a job
+export async function applyForJob(apprenticeId, jobRequestId, proposal) {
+    try {
+        // Check if already applied
+        const { data: existingApplication } = await supabase
+            .from("job_applications")
+            .select("id")
+            .eq("apprentice_id", apprenticeId)
+            .eq("job_request_id", jobRequestId)
+            .single();
+
+        if (existingApplication) {
+            throw new Error("You have already applied for this job");
+        }
+
+        const { data, error } = await supabase
+            .from("job_applications")
+            .insert({
+                apprentice_id: apprenticeId,
+                job_request_id: jobRequestId,
+                proposal: proposal,
+                status: "pending",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error applying for job:", error);
+        throw error;
+    }
+}
+
+// Accept or reject a job application
+export async function updateApplicationStatus(applicationId, status, clientId) {
+    try {
+        // Verify the client owns the job request
+        const { data: application, error: fetchError } = await supabase
+            .from("job_applications")
+            .select(
+                `
+                *,
+                job_request:job_requests!inner(client_id)
+            `
+            )
+            .eq("id", applicationId)
+            .eq("job_request.client_id", clientId)
+            .single();
+
+        if (fetchError || !application) {
+            throw new Error("Application not found or unauthorized");
+        }
+
+        const { data, error } = await supabase
+            .from("job_applications")
+            .update({
+                status: status,
+                updated_at: new Date().toISOString(),
+            })
+            .eq("id", applicationId)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // If accepted, update job request status to "in_progress"
+        if (status === "accepted") {
+            await supabase
+                .from("job_requests")
+                .update({
+                    status: "in_progress",
+                    assigned_apprentice_id: application.apprentice_id,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq("id", application.job_request_id);
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error updating application status:", error);
+        throw error;
+    }
+}
+
+// Update job progress
+export async function updateJobProgress(jobRequestId, progress, apprenticeId) {
+    try {
+        // Verify the apprentice is assigned to this job
+        const { data: job, error: fetchError } = await supabase
+            .from("job_requests")
+            .select("assigned_apprentice_id")
+            .eq("id", jobRequestId)
+            .eq("assigned_apprentice_id", apprenticeId)
+            .single();
+
+        if (fetchError || !job) {
+            throw new Error("Job not found or unauthorized");
+        }
+
+        const { data, error } = await supabase
+            .from("job_requests")
+            .update({
+                progress: progress,
+                updated_at: new Date().toISOString(),
+            })
+            .eq("id", jobRequestId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error updating job progress:", error);
+        throw error;
+    }
+}
+
+// Complete a job
+export async function completeJob(jobRequestId, apprenticeId) {
+    try {
+        // Verify the apprentice is assigned to this job
+        const { data: job, error: fetchError } = await supabase
+            .from("job_requests")
+            .select("assigned_apprentice_id, budget_min, budget_max")
+            .eq("id", jobRequestId)
+            .eq("assigned_apprentice_id", apprenticeId)
+            .single();
+
+        if (fetchError || !job) {
+            throw new Error("Job not found or unauthorized");
+        }
+
+        const { data, error } = await supabase
+            .from("job_requests")
+            .update({
+                status: "completed",
+                completed_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .eq("id", jobRequestId)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // Calculate payment (average of min and max budget)
+        const payment = Math.round((job.budget_min + job.budget_max) / 2);
+
+        // Add earnings to apprentice profile - first get current values
+        const { data: currentProfile, error: profileError } = await supabase
+            .from("profiles")
+            .select("total_earnings, completed_jobs")
+            .eq("id", apprenticeId)
+            .single();
+
+        if (profileError) throw profileError;
+
+        const newTotalEarnings = (currentProfile.total_earnings || 0) + payment;
+        const newCompletedJobs = (currentProfile.completed_jobs || 0) + 1;
+
+        await supabase
+            .from("profiles")
+            .update({
+                total_earnings: newTotalEarnings,
+                completed_jobs: newCompletedJobs,
+                updated_at: new Date().toISOString(),
+            })
+            .eq("id", apprenticeId);
+
+        return { ...data, payment };
+    } catch (error) {
+        console.error("Error completing job:", error);
+        throw error;
+    }
+}
+
+// Get apprentice statistics
+export async function getApprenticeStats(apprenticeId) {
+    try {
+        const { data, error } = await supabase
+            .from("profiles")
+            .select(
+                `
+                total_earnings,
+                completed_jobs,
+                pending_jobs:job_applications(count),
+                active_jobs:job_requests(count)
+            `
+            )
+            .eq("id", apprenticeId)
+            .single();
+
+        if (error) throw error;
+
+        // Get pending applications count
+        const { count: pendingApplications } = await supabase
+            .from("job_applications")
+            .select("*", { count: "exact", head: true })
+            .eq("apprentice_id", apprenticeId)
+            .eq("status", "pending");
+
+        // Get active jobs count
+        const { count: activeJobs } = await supabase
+            .from("job_requests")
+            .select("*", { count: "exact", head: true })
+            .eq("assigned_apprentice_id", apprenticeId)
+            .eq("status", "in_progress");
+
+        return {
+            totalEarned: data.total_earnings || 0,
+            completedJobs: data.completed_jobs || 0,
+            pendingJobs: pendingApplications || 0,
+            activeJobs: activeJobs || 0,
+        };
+    } catch (error) {
+        console.error("Error fetching apprentice stats:", error);
+        throw error;
+    }
+}
+
+// Get client statistics
+export async function getClientStats(clientId) {
+    try {
+        const { data, error } = await supabase
+            .from("job_requests")
+            .select("*")
+            .eq("client_id", clientId);
+
+        if (error) throw error;
+
+        const stats = {
+            totalJobs: data.length,
+            openJobs: data.filter((job) => job.status === "open").length,
+            inProgressJobs: data.filter((job) => job.status === "in_progress")
+                .length,
+            completedJobs: data.filter((job) => job.status === "completed")
+                .length,
+            totalSpent: data
+                .filter((job) => job.status === "completed")
+                .reduce(
+                    (sum, job) =>
+                        sum + Math.round((job.budget_min + job.budget_max) / 2),
+                    0
+                ),
+        };
+
+        return stats;
+    } catch (error) {
+        console.error("Error fetching client stats:", error);
+        throw error;
     }
 }
