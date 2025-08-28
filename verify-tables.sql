@@ -60,3 +60,21 @@ SELECT 'post_likes' as table_name, COUNT(*) as row_count FROM post_likes;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

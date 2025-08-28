@@ -28,6 +28,9 @@ import {
     getApprenticeStats,
     getClientStats,
     getUserPostsById,
+    generateReferralCode,
+    getUserReferralCode,
+    getUserReferralStats,
 } from "./supabase-auth.js";
 
 // --- DOM Elements ---
@@ -64,7 +67,7 @@ const subscriptionPlans = {
     },
     creative: {
         name: "Creative",
-        price: 3,
+        price: 4500,
         unlocks: [
             "home",
             "gallery",
@@ -78,7 +81,7 @@ const subscriptionPlans = {
     },
     entrepreneur: {
         name: "Entrepreneur",
-        price: 8,
+        price: 12000,
         unlocks: [
             "home",
             "gallery",
@@ -92,7 +95,7 @@ const subscriptionPlans = {
             "explore",
         ],
     },
-    visionary: { name: "Visionary", price: 25, unlocks: ["*"] },
+    visionary: { name: "Visionary", price: 37500, unlocks: ["*"] },
 };
 
 // --- TABS CONFIGURATION ---
@@ -259,7 +262,9 @@ const apprenticeContentTemplates = {
                     <i data-feather="dollar-sign" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-sm font-medium text-gray-500">Total Earned</h3>
-                <p class="text-3xl font-bold mt-2 text-purple-600">$${apprenticeStats.totalEarned.toLocaleString()}</p>
+                <p class="text-3xl font-bold mt-2 text-purple-600">₦${(
+                    apprenticeStats.totalEarned * 1500
+                ).toLocaleString()}</p>
             </div>
         </div>
 
@@ -300,9 +305,12 @@ const apprenticeContentTemplates = {
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-2xl font-bold text-green-600">$${
-                                            job.budget_min
-                                        }-$${job.budget_max}</div>
+                                                        <div class="text-2xl font-bold text-green-600">₦${(
+                                                            job.budget_min *
+                                                            1500
+                                                        ).toLocaleString()}-₦${(
+                                    job.budget_max * 1500
+                                ).toLocaleString()}</div>
                                         <div class="text-sm text-gray-500">Budget</div>
                                     </div>
                                 </div>
@@ -420,9 +428,14 @@ const apprenticeContentTemplates = {
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
                                     <div>
                                         <span class="text-gray-500">Budget:</span>
-                                        <span class="font-medium">$${
-                                            app.job_request.budget_min
-                                        }-$${app.job_request.budget_max}</span>
+                                                                <span class="font-medium">₦${(
+                                                                    app
+                                                                        .job_request
+                                                                        .budget_min *
+                                                                    1500
+                                                                ).toLocaleString()}-₦${(
+                                    app.job_request.budget_max * 1500
+                                ).toLocaleString()}</span>
                                     </div>
                                     <div>
                                         <span class="text-gray-500">Deadline:</span>
@@ -504,8 +517,8 @@ const apprenticeContentTemplates = {
             stats.thisMonth = Math.round(stats.totalEarned * 0.3); // 30% earned this month
             stats.goalProgress = Math.min(
                 100,
-                Math.round((stats.totalEarned / 5000) * 100)
-            ); // Goal of $5000
+                Math.round((stats.totalEarned / 7500000) * 100)
+            ); // Goal of ₦7,500,000
         } catch (error) {
             console.error("Error fetching earnings data:", error);
         }
@@ -523,21 +536,27 @@ const apprenticeContentTemplates = {
                     <i data-feather="dollar-sign" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-sm font-medium text-gray-500">Total Earned</h3>
-                <p class="text-3xl font-bold mt-2 text-green-600">$${stats.totalEarned.toLocaleString()}</p>
+                <p class="text-3xl font-bold mt-2 text-green-600">₦${(
+                    stats.totalEarned * 1500
+                ).toLocaleString()}</p>
             </div>
             <div class="stat-card bg-white p-6 rounded-lg shadow text-center">
                 <div class="p-3 rounded-full bg-blue-100 text-blue-600 mx-auto w-12 h-12 flex items-center justify-center mb-3">
                     <i data-feather="credit-card" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-sm font-medium text-gray-500">Available Balance</h3>
-                <p class="text-3xl font-bold mt-2 text-blue-600">$${stats.availableBalance.toLocaleString()}</p>
+                <p class="text-3xl font-bold mt-2 text-blue-600">₦${(
+                    stats.availableBalance * 1500
+                ).toLocaleString()}</p>
             </div>
             <div class="stat-card bg-white p-6 rounded-lg shadow text-center">
                 <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mx-auto w-12 h-12 flex items-center justify-center mb-3">
                     <i data-feather="trending-up" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-sm font-medium text-gray-500">This Month</h3>
-                <p class="text-3xl font-bold mt-2 text-yellow-600">$${stats.thisMonth.toLocaleString()}</p>
+                <p class="text-3xl font-bold mt-2 text-yellow-600">₦${(
+                    stats.thisMonth * 1500
+                ).toLocaleString()}</p>
             </div>
             <div class="stat-card bg-white p-6 rounded-lg shadow text-center">
                 <div class="p-3 rounded-full bg-purple-100 text-purple-600 mx-auto w-12 h-12 flex items-center justify-center mb-3">
@@ -564,7 +583,9 @@ const apprenticeContentTemplates = {
                         <p class="text-gray-600 text-sm mb-4">Withdraw your available balance to your bank account or mobile money.</p>
                         <div class="flex items-center justify-between mb-4">
                             <span class="text-sm text-gray-600">Available for withdrawal:</span>
-                            <span class="font-bold text-green-600">$${stats.availableBalance.toLocaleString()}</span>
+                            <span class="font-bold text-green-600">₦${(
+                                stats.availableBalance * 1500
+                            ).toLocaleString()}</span>
                         </div>
                         <div class="flex space-x-2">
                             <button class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 text-sm font-medium" ${
@@ -608,7 +629,9 @@ const apprenticeContentTemplates = {
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">December 2024</span>
-                            <span class="font-semibold text-green-600">$${stats.thisMonth.toLocaleString()}</span>
+                            <span class="font-semibold text-green-600">₦${(
+                                stats.thisMonth * 1500
+                            ).toLocaleString()}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="bg-green-600 h-2 rounded-full" style="width: ${Math.min(
@@ -619,8 +642,8 @@ const apprenticeContentTemplates = {
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">November 2024</span>
-                            <span class="font-semibold text-green-600">$${Math.round(
-                                stats.totalEarned * 0.2
+                            <span class="font-semibold text-green-600">₦${(
+                                Math.round(stats.totalEarned * 0.2) * 1500
                             ).toLocaleString()}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -632,8 +655,8 @@ const apprenticeContentTemplates = {
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">October 2024</span>
-                            <span class="font-semibold text-green-600">$${Math.round(
-                                stats.totalEarned * 0.3
+                            <span class="font-semibold text-green-600">₦${(
+                                Math.round(stats.totalEarned * 0.3) * 1500
                             ).toLocaleString()}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -645,8 +668,8 @@ const apprenticeContentTemplates = {
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">September 2024</span>
-                            <span class="font-semibold text-green-600">$${Math.round(
-                                stats.totalEarned * 0.2
+                            <span class="font-semibold text-green-600">₦${(
+                                Math.round(stats.totalEarned * 0.2) * 1500
                             ).toLocaleString()}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -686,8 +709,8 @@ const apprenticeContentTemplates = {
                                 </div>
                             </div>
                             <div class="text-right">
-                                <span class="font-bold text-green-600">+$${Math.round(
-                                    stats.totalEarned * 0.4
+                                <span class="font-bold text-green-600">+₦${(
+                                    Math.round(stats.totalEarned * 0.4) * 1500
                                 ).toLocaleString()}</span>
                                 <p class="text-xs text-gray-500">Completed</p>
                             </div>
@@ -713,190 +736,22 @@ const apprenticeContentTemplates = {
     extras: (userData) => `
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Extras & Community</h1>
-            <p class="text-gray-600">Explore events, learning resources, and community features.</p>
+            <p class="text-gray-600">Coming soon! We're working on exciting new features.</p>
         </div>
         
-        <!-- Featured Events -->
-        <div class="bg-white rounded-lg shadow mb-8">
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-xl font-bold text-gray-900">Upcoming Events</h3>
-                <p class="text-gray-600">Join workshops, networking events, and skill-building sessions</p>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full w-fit mb-3">Free</div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Digital Marketing Workshop</h4>
-                        <p class="text-gray-600 text-sm mb-3">Learn the fundamentals of digital marketing for freelancers and small businesses.</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span><i data-feather="calendar" class="w-3 h-3 inline mr-1"></i>Dec 20, 2024</span>
-                            <span><i data-feather="clock" class="w-3 h-3 inline mr-1"></i>2:00 PM</span>
-                        </div>
-                        <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-sm font-medium">Register Now</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full w-fit mb-3">Premium</div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Portfolio Building Masterclass</h4>
-                        <p class="text-gray-600 text-sm mb-3">Expert tips on creating a compelling portfolio that attracts high-paying clients.</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span><i data-feather="calendar" class="w-3 h-3 inline mr-1"></i>Dec 25, 2024</span>
-                            <span><i data-feather="clock" class="w-3 h-3 inline mr-1"></i>10:00 AM</span>
-                        </div>
-                        <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 text-sm font-medium">Join ($25)</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full w-fit mb-3">Networking</div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Creative Meetup Lagos</h4>
-                        <p class="text-gray-600 text-sm mb-3">Connect with fellow creatives, share experiences, and find collaboration opportunities.</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span><i data-feather="calendar" class="w-3 h-3 inline mr-1"></i>Dec 28, 2024</span>
-                            <span><i data-feather="clock" class="w-3 h-3 inline mr-1"></i>6:00 PM</span>
-                        </div>
-                        <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 text-sm font-medium">RSVP</button>
-                    </div>
-                </div>
-                
-                <div class="mt-6 text-center">
-                    <button class="text-blue-600 hover:text-blue-700 font-medium">View All Events →</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Learning Hub -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-xl font-bold text-gray-900">Learning Hub</h3>
-                    <p class="text-gray-600">Enhance your skills with our curated courses</p>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900">Photography Fundamentals</h4>
-                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Beginner</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-3">Master the basics of photography, composition, and editing.</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span>12 lessons</span>
-                            <span class="text-green-600 font-medium">Free</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
-                            <div class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
-                        </div>
-                        <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-sm font-medium">Start Learning</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900">Web Design Mastery</h4>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Advanced</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-3">Advanced web design techniques and modern frameworks.</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span>24 lessons</span>
-                            <span class="text-green-600 font-medium">$49</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
-                            <div class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
-                        </div>
-                        <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 text-sm font-medium">Enroll Now</button>
-                    </div>
-                    
-                    <div class="text-center">
-                        <button class="text-blue-600 hover:text-blue-700 font-medium">Browse All Courses →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Community Forum -->
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-xl font-bold text-gray-900">Community Forum</h3>
-                    <p class="text-gray-600">Connect, share, and learn from peers</p>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900">Tips for Landing Your First Client</h4>
-                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">Hot</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-3">Share your strategies for getting your first paying client...</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span>by @creative_sarah</span>
-                            <span>23 replies</span>
-                        </div>
-                        <button class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 text-sm font-medium">Join Discussion</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900">Best Tools for Graphic Designers</h4>
-                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Discussion</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-3">What tools and software do you recommend for beginners?</p>
-                        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                            <span>by @design_mike</span>
-                            <span>15 replies</span>
-                        </div>
-                        <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-sm font-medium">Join Discussion</button>
-                    </div>
-                    
-                    <div class="text-center">
-                        <button class="text-blue-600 hover:text-blue-700 font-medium">View All Discussions →</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Digital Store -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-xl font-bold text-gray-900">Digital Store</h3>
-                <p class="text-gray-600">Sell your digital products and templates</p>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow">
-                        <div class="bg-gray-100 rounded-lg p-4 mb-3">
-                            <i data-feather="image" class="w-8 h-8 text-gray-600 mx-auto"></i>
-                        </div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Photo Templates</h4>
-                        <p class="text-gray-600 text-sm mb-3">Sell your photography templates and presets</p>
-                        <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-sm font-medium">Start Selling</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow">
-                        <div class="bg-gray-100 rounded-lg p-4 mb-3">
-                            <i data-feather="layout" class="w-8 h-8 text-gray-600 mx-auto"></i>
-                        </div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Design Templates</h4>
-                        <p class="text-gray-600 text-sm mb-3">Sell logos, social media templates, and graphics</p>
-                        <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 text-sm font-medium">Start Selling</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow">
-                        <div class="bg-gray-100 rounded-lg p-4 mb-3">
-                            <i data-feather="code" class="w-8 h-8 text-gray-600 mx-auto"></i>
-                        </div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Code Snippets</h4>
-                        <p class="text-gray-600 text-sm mb-3">Sell reusable code components and scripts</p>
-                        <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 text-sm font-medium">Start Selling</button>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow">
-                        <div class="bg-gray-100 rounded-lg p-4 mb-3">
-                            <i data-feather="book" class="w-8 h-8 text-gray-600 mx-auto"></i>
-                        </div>
-                        <h4 class="font-semibold text-gray-900 mb-2">E-books & Guides</h4>
-                        <p class="text-gray-600 text-sm mb-3">Sell your knowledge and expertise</p>
-                        <button class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 text-sm font-medium">Start Selling</button>
-                    </div>
-                </div>
-                
-                <div class="mt-6 text-center">
-                    <button class="text-blue-600 hover:text-blue-700 font-medium">View Store Analytics →</button>
+        <div class="bg-white rounded-lg shadow p-12 text-center">
+            <div class="max-w-md mx-auto">
+                <i data-feather="gift" class="w-16 h-16 text-gray-300 mx-auto mb-6"></i>
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Coming Soon</h3>
+                <p class="text-gray-600 mb-6">We're building amazing community features, learning resources, and exclusive extras for apprentices. Stay tuned for updates!</p>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-blue-800 text-sm">Features in development:</p>
+                    <ul class="text-blue-700 text-sm mt-2 space-y-1">
+                        <li>• Community events and workshops</li>
+                        <li>• Learning hub with courses</li>
+                        <li>• Digital store for selling work</li>
+                        <li>• Networking opportunities</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -928,8 +783,12 @@ const apprenticeContentTemplates = {
                              alt="${post.title}" 
                              class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105 gallery-image"
                              data-src="${post.image_url}"
-                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/EBF4FF/3B82F6?text=Image+Not+Found'; this.classList.add('opacity-50'); console.error('Image failed to load:', post.image_url);"
-                             onload="this.classList.remove('image-loading'); this.classList.add('image-loaded'); console.log('Image loaded successfully:', post.image_url);">
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/EBF4FF/3B82F6?text=Image+Not+Found'; this.classList.add('opacity-50'); console.error('Image failed to load:', '${
+                                 post.image_url
+                             }');"
+                             onload="this.classList.remove('image-loading'); this.classList.add('image-loaded'); console.log('Image loaded successfully:', '${
+                                 post.image_url
+                             }');">
                         <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                             <button class="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 hover:bg-opacity-100 view-image-btn" 
                                     data-image-url="${post.image_url}" 
@@ -1228,21 +1087,6 @@ const memberContentTemplates = {
                                         : "Follow"
                                 }
                             </button>
-                            ${
-                                currentUserRole === "member" &&
-                                user.role === "apprentice"
-                                    ? `
-                                <button class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 view-gallery-btn" 
-                                        data-user-id="${user.id}" 
-                                        data-user-name="${
-                                            user.name || "Unknown"
-                                        }">
-                                    <i data-feather="image" class="w-4 h-4 mr-1"></i>
-                                    Gallery
-                                </button>
-                            `
-                                    : ""
-                            }
                         </div>
                     </div>
                 `
@@ -1315,21 +1159,6 @@ const memberContentTemplates = {
                                         : "Follow"
                                 }
                             </button>
-                            ${
-                                currentUserRole === "member" &&
-                                user.role === "apprentice"
-                                    ? `
-                                <button class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 view-gallery-btn" 
-                                        data-user-id="${user.id}" 
-                                        data-user-name="${
-                                            user.name || "Unknown"
-                                        }">
-                                    <i data-feather="image" class="w-4 h-4 mr-1"></i>
-                                    Gallery
-                                </button>
-                            `
-                                    : ""
-                            }
                         </div>
                     </div>
                 `
@@ -1429,8 +1258,12 @@ const memberContentTemplates = {
                              alt="${post.title}" 
                              class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105 gallery-image"
                              data-src="${post.image_url}"
-                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/EBF4FF/3B82F6?text=Image+Not+Found'; this.classList.add('opacity-50'); console.error('Image failed to load:', post.image_url);"
-                             onload="this.classList.remove('image-loading'); this.classList.add('image-loaded'); console.log('Image loaded successfully:', post.image_url);">
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/EBF4FF/3B82F6?text=Image+Not+Found'; this.classList.add('opacity-50'); console.error('Image failed to load:', '${
+                                 post.image_url
+                             }');"
+                             onload="this.classList.remove('image-loading'); this.classList.add('image-loaded'); console.log('Image loaded successfully:', '${
+                                 post.image_url
+                             }');">
                         <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                             <button class="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 hover:bg-opacity-100 view-image-btn" 
                                     data-image-url="${post.image_url}" 
@@ -1526,7 +1359,7 @@ const memberContentTemplates = {
                         : ""
                 }">
                     <h3 class="text-xl font-bold mb-2">${plan.name}</h3>
-                    <p class="text-3xl font-bold text-blue-600 mb-4">${
+                    <p class="text-3xl font-bold text-blue-600 mb-4">₦${
                         plan.price
                     }<span class="text-sm text-gray-500">/month</span></p>
                     <ul class="space-y-2 mb-6">
@@ -1566,11 +1399,104 @@ const memberContentTemplates = {
                 .join("")}
         </div>
     `,
-    earnings: (userData) => `
+    earnings: async (userData) => {
+        // Get referral data
+        let referralCode = null;
+        let referralStats = [];
+
+        try {
+            referralCode = await getUserReferralCode(userData.id);
+            referralStats = await getUserReferralStats(userData.id);
+        } catch (error) {
+            console.error("Error fetching referral data:", error);
+        }
+
+        const inviteLink = referralCode
+            ? `${window.location.origin}/craftnet-supabase.html?ref=${referralCode.code}`
+            : null;
+
+        return `
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Earn Points</h1>
             <p class="text-gray-600">Complete tasks and refer friends to earn points</p>
         </div>
+        
+        <!-- Referral Section -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h3 class="text-xl font-bold mb-4">Your Referral Link</h3>
+            <div class="space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">Share Your Invite Link</h4>
+                    <p class="text-gray-600 text-sm mb-4">Share this link with friends and earn 100 points for each successful referral!</p>
+                    
+                    ${
+                        inviteLink
+                            ? `
+                        <div class="flex items-center space-x-2 mb-4">
+                            <input type="text" value="${inviteLink}" readonly 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm font-mono">
+                            <button onclick="copyToClipboard('${inviteLink}')" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                Copy
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between text-sm text-gray-600">
+                            <span>Referral Code: <span class="font-mono font-semibold">${referralCode.code}</span></span>
+                            <span>Total Referrals: <span class="font-semibold">${referralCode.total_referrals}</span></span>
+                        </div>
+                    `
+                            : `
+                        <div class="text-center py-4">
+                            <p class="text-gray-500">Loading your referral link...</p>
+                        </div>
+                    `
+                    }
+                </div>
+                
+                ${
+                    referralStats.length > 0
+                        ? `
+                    <div class="border-t border-gray-200 pt-4">
+                        <h5 class="font-semibold text-gray-900 mb-3">Recent Referrals</h5>
+                        <div class="space-y-2">
+                            ${referralStats
+                                .slice(0, 5)
+                                .map(
+                                    (referral) => `
+                                <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-blue-600 font-semibold text-sm">${
+                                                referral.referred_user?.name?.charAt(
+                                                    0
+                                                ) || "U"
+                                            }</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-sm">${
+                                                referral.referred_user?.name ||
+                                                "Unknown User"
+                                            }</p>
+                                            <p class="text-xs text-gray-500">${new Date(
+                                                referral.created_at
+                                            ).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-green-600 font-semibold">+${
+                                        referral.points_awarded
+                                    } pts</span>
+                                </div>
+                            `
+                                )
+                                .join("")}
+                        </div>
+                    </div>
+                `
+                        : ""
+                }
+            </div>
+        </div>
+        
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-xl font-bold mb-4">Your Points</h3>
@@ -1623,7 +1549,8 @@ const memberContentTemplates = {
                 </div>
             </div>
         </div>
-    `,
+    `;
+    },
     jobs: async (userData) => {
         // Get client job requests
         let myJobRequests = [];
@@ -1682,7 +1609,9 @@ const memberContentTemplates = {
                     <i data-feather="dollar-sign" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-sm font-medium text-gray-500">Total Spent</h3>
-                <p class="text-3xl font-bold mt-2 text-purple-600">$${clientStats.totalSpent.toLocaleString()}</p>
+                <p class="text-3xl font-bold mt-2 text-purple-600">₦${(
+                    clientStats.totalSpent * 1500
+                ).toLocaleString()}</p>
             </div>
         </div>
 
@@ -1807,9 +1736,12 @@ const memberContentTemplates = {
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
                                     <div>
                                         <span class="text-gray-500">Budget:</span>
-                                        <span class="font-medium">$${
-                                            job.budget_min
-                                        }-$${job.budget_max}</span>
+                                                                <span class="font-medium">₦${(
+                                                                    job.budget_min *
+                                                                    1500
+                                                                ).toLocaleString()}-₦${(
+                                    job.budget_max * 1500
+                                ).toLocaleString()}</span>
                                     </div>
                                     <div>
                                         <span class="text-gray-500">Location:</span>
@@ -2382,79 +2314,10 @@ document.addEventListener("click", async (e) => {
         e.stopPropagation();
 
         const targetUserId = e.target.dataset.userId;
-        const button = e.target;
+        const targetUserName = e.target.dataset.userName || "User";
 
-        // Get current user from Supabase
-        const {
-            data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
-            alert("Please log in to follow users");
-            return;
-        }
-
-        if (!targetUserId) {
-            console.error("No target user ID found");
-            alert("Error: Invalid user");
-            return;
-        }
-
-        if (targetUserId === user.id) {
-            alert("You cannot follow yourself");
-            return;
-        }
-
-        console.log("Follow button clicked:", {
-            currentUser: user.id,
-            targetUser: targetUserId,
-        });
-
-        try {
-            // Update button state immediately
-            const originalText = button.textContent;
-            button.disabled = true;
-            button.textContent = "Following...";
-            button.classList.add("opacity-50");
-
-            const success = await followUser(user.id, targetUserId);
-
-            if (success) {
-                button.textContent = "Followed!";
-                button.classList.remove(
-                    "bg-blue-600",
-                    "hover:bg-blue-700",
-                    "opacity-50"
-                );
-                button.classList.add("bg-green-600");
-
-                // Show success for 2 seconds, then change to "Following"
-                setTimeout(() => {
-                    button.textContent = "Following";
-                    button.classList.remove("bg-green-600");
-                    button.classList.add("bg-gray-400", "cursor-not-allowed");
-                }, 2000);
-            } else {
-                throw new Error("Failed to follow user");
-            }
-        } catch (error) {
-            console.error("Error in follow button handler:", error);
-
-            // Reset button state
-            button.disabled = false;
-            button.textContent = "Follow";
-            button.classList.remove("opacity-50");
-
-            // Show user-friendly error message
-            let errorMessage = "Error following user. Please try again.";
-            if (error.message.includes("permission")) {
-                errorMessage =
-                    "Permission denied. Please try refreshing the page.";
-            } else if (error.message.includes("network")) {
-                errorMessage = "Network error. Please check your connection.";
-            }
-
-            alert(errorMessage);
-        }
+        // Show user profile modal instead of directly following
+        await showUserProfileModal(targetUserId, targetUserName);
     }
 
     // Like button handler
@@ -2536,7 +2399,9 @@ document.addEventListener("click", async (e) => {
     // Withdrawal handler
     if (e.target.textContent === "Withdraw All") {
         e.preventDefault();
-        if (confirm("Withdraw your entire available balance ($1,280.00)?")) {
+        if (
+            confirm("Withdraw your entire available balance (₦1,920,000.00)?")
+        ) {
             e.target.textContent = "Processing...";
             e.target.disabled = true;
 
@@ -2556,7 +2421,7 @@ document.addEventListener("click", async (e) => {
     // Event registration handler
     if (
         e.target.textContent === "Register Now" ||
-        e.target.textContent === "Join ($25)" ||
+        e.target.textContent === "Join (₦37,500)" ||
         e.target.textContent === "RSVP"
     ) {
         e.preventDefault();
@@ -2566,8 +2431,11 @@ document.addEventListener("click", async (e) => {
             ".bg-blue-100, .bg-green-100, .bg-purple-100"
         ).textContent;
 
-        if (eventType === "Premium" && e.target.textContent === "Join ($25)") {
-            if (confirm(`Register for "${eventTitle}" for $25?`)) {
+        if (
+            eventType === "Premium" &&
+            e.target.textContent === "Join (₦37,500)"
+        ) {
+            if (confirm(`Register for "${eventTitle}" for ₦37,500?`)) {
                 e.target.textContent = "Registered";
                 e.target.classList.remove("bg-green-600", "hover:bg-green-700");
                 e.target.classList.add("bg-blue-600", "cursor-not-allowed");
@@ -2605,8 +2473,11 @@ document.addEventListener("click", async (e) => {
         const coursePrice =
             courseCard.querySelector(".text-green-600").textContent;
 
-        if (coursePrice === "$49" && e.target.textContent === "Enroll Now") {
-            if (confirm(`Enroll in "${courseTitle}" for $49?`)) {
+        if (
+            coursePrice === "₦73,500" &&
+            e.target.textContent === "Enroll Now"
+        ) {
+            if (confirm(`Enroll in "${courseTitle}" for ₦73,500?`)) {
                 e.target.textContent = "Enrolled";
                 e.target.classList.remove("bg-green-600", "hover:bg-green-700");
                 e.target.classList.add("bg-blue-600", "cursor-not-allowed");
@@ -2786,11 +2657,24 @@ document.addEventListener("click", async (e) => {
                 const nameInput = document.getElementById("edit-name");
                 const creativeTypeInput =
                     document.getElementById("edit-creative-type");
+                const descriptionInput =
+                    document.getElementById("edit-description");
+                const typeLabel = document.getElementById("edit-type-label");
+
+                // Update label based on user role
+                if (typeLabel) {
+                    typeLabel.textContent =
+                        userData.role === "apprentice"
+                            ? "Skill"
+                            : "Creative Type";
+                }
 
                 if (nameInput) nameInput.value = userData.name || "";
                 if (creativeTypeInput)
                     creativeTypeInput.value =
                         userData.skill || userData.creative_type || "";
+                if (descriptionInput)
+                    descriptionInput.value = userData.description || "";
             }
         }
     }
@@ -2958,6 +2842,7 @@ async function handleProfileUpdate(e, userData) {
     e.preventDefault();
     const newName = document.getElementById("edit-name").value;
     const newCreativeType = document.getElementById("edit-creative-type").value;
+    const newDescription = document.getElementById("edit-description").value;
 
     const spinner = document.getElementById("edit-spinner");
     const submitBtn = document.getElementById("submit-edit-profile");
@@ -2966,17 +2851,22 @@ async function handleProfileUpdate(e, userData) {
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-        const dataToUpdate = { name: newName };
+        const dataToUpdate = { name: newName, description: newDescription };
         if (userData.role === "member") {
             dataToUpdate.creative_type = newCreativeType;
+        } else if (userData.role === "apprentice") {
+            dataToUpdate.skill = newCreativeType; // For apprentices, creative-type field is used for skill
         }
 
         await updateUserProfile(userData.id, dataToUpdate);
 
         // Update userData object
         userData.name = newName;
+        userData.description = newDescription;
         if (userData.role === "member") {
             userData.creative_type = newCreativeType;
+        } else if (userData.role === "apprentice") {
+            userData.skill = newCreativeType;
         }
 
         // Update UI elements immediately
@@ -3539,6 +3429,14 @@ async function switchContent(tabId, userData) {
                 console.error("Error loading jobs content:", error);
                 content = `<div class="text-center py-12"><p class="text-red-500">Error loading jobs. Please try again.</p></div>`;
             }
+        } else if (userData.role === "member" && tabId === "earnings") {
+            // Handle async member earnings template
+            try {
+                content = await templates[tabId](userData);
+            } catch (error) {
+                console.error("Error loading earnings content:", error);
+                content = `<div class="text-center py-12"><p class="text-red-500">Error loading earnings. Please try again.</p></div>`;
+            }
         } else {
             // Default content rendering
             const template = templates[tabId];
@@ -3612,6 +3510,25 @@ async function switchContent(tabId, userData) {
     }
 }
 
+// --- Utility Functions ---
+function copyToClipboard(text) {
+    navigator.clipboard
+        .writeText(text)
+        .then(() => {
+            showNotification("Referral link copied to clipboard!", "success");
+        })
+        .catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showNotification("Referral link copied to clipboard!", "success");
+        });
+}
+
 // --- Main Initialization ---
 async function initializeDashboard() {
     try {
@@ -3641,7 +3558,7 @@ async function initializeDashboard() {
         // Start real-time updates for apprentices
         if (userData.role === "apprentice") {
             startRealTimeUpdates(userData);
-            updateApprenticeStats(userData); // Initial stats update
+            await updateApprenticeStats(userData); // Initial stats update
         }
     } catch (error) {
         console.error("Dashboard initialization error:", error);
@@ -3667,6 +3584,69 @@ async function initializeDashboard() {
     }
 }
 
+// --- User Profile Modal Functions ---
+async function showUserProfileModal(userId, userName) {
+    try {
+        // Get user profile data
+        const { data: userProfile, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", userId)
+            .single();
+
+        if (error) {
+            console.error("Error fetching user profile:", error);
+            showNotification("Error loading user profile", "error");
+            return;
+        }
+
+        // Update modal content
+        const modal = document.getElementById("user-profile-modal");
+        const avatar = document.getElementById("modal-user-avatar");
+        const name = document.getElementById("modal-user-name");
+        const role = document.getElementById("modal-user-role");
+        const location = document.getElementById("modal-user-location");
+        const descriptionContent = document.getElementById(
+            "modal-description-content"
+        );
+        const connectBtn = document.getElementById("modal-connect-btn");
+        const galleryBtn = document.getElementById("modal-view-gallery-btn");
+
+        // Set user info
+        const initials = (userProfile.name || "U").charAt(0).toUpperCase();
+        avatar.src = `https://placehold.co/100x100/EBF4FF/3B82F6?text=${initials}`;
+        avatar.alt = userProfile.name;
+        name.textContent = userProfile.name || "Unknown User";
+        role.textContent =
+            userProfile.role === "apprentice" ? "Apprentice" : "Member";
+        location.textContent = userProfile.location || "Location not set";
+
+        // Set description
+        if (userProfile.description && userProfile.description.trim()) {
+            descriptionContent.innerHTML = `<p class="text-gray-700 text-sm">${userProfile.description}</p>`;
+        } else {
+            descriptionContent.innerHTML = `<p class="text-gray-500 text-sm italic">No description available.</p>`;
+        }
+
+        // Set button data attributes
+        connectBtn.dataset.userId = userId;
+        connectBtn.dataset.userName = userProfile.name;
+        galleryBtn.dataset.userId = userId;
+        galleryBtn.dataset.userName = userProfile.name;
+
+        // Show modal
+        modal.classList.add("active");
+
+        // Replace feather icons
+        if (typeof feather !== "undefined") {
+            feather.replace();
+        }
+    } catch (error) {
+        console.error("Error showing user profile modal:", error);
+        showNotification("Error loading user profile", "error");
+    }
+}
+
 // --- Event Listeners for Modals ---
 document.addEventListener("DOMContentLoaded", () => {
     // Close modals when clicking outside
@@ -3675,6 +3655,125 @@ document.addEventListener("DOMContentLoaded", () => {
             e.target.classList.remove("active");
         }
     });
+
+    // User Profile Modal Event Handlers
+    const userProfileModal = document.getElementById("user-profile-modal");
+    if (userProfileModal) {
+        const closeBtn = userProfileModal.querySelector(
+            "#close-user-profile-modal"
+        );
+        if (closeBtn) {
+            closeBtn.addEventListener("click", () => {
+                userProfileModal.classList.remove("active");
+            });
+        }
+
+        // Connect button handler
+        const connectBtn = userProfileModal.querySelector("#modal-connect-btn");
+        if (connectBtn) {
+            connectBtn.addEventListener("click", async () => {
+                const userId = connectBtn.dataset.userId;
+                const userName = connectBtn.dataset.userName;
+
+                // Get current user
+                const {
+                    data: { user },
+                } = await supabase.auth.getUser();
+                if (!user) {
+                    showNotification(
+                        "Please log in to connect with users",
+                        "error"
+                    );
+                    return;
+                }
+
+                if (user.id === userId) {
+                    showNotification(
+                        "You cannot connect with yourself",
+                        "error"
+                    );
+                    return;
+                }
+
+                try {
+                    connectBtn.disabled = true;
+                    connectBtn.textContent = "Connecting...";
+
+                    const success = await followUser(user.id, userId);
+
+                    if (success) {
+                        connectBtn.textContent = "Connected!";
+                        connectBtn.classList.remove(
+                            "bg-blue-600",
+                            "hover:bg-blue-700"
+                        );
+                        connectBtn.classList.add(
+                            "bg-green-600",
+                            "cursor-not-allowed"
+                        );
+                        connectBtn.disabled = true;
+
+                        // Update the original follow button if it exists
+                        const originalBtn = document.querySelector(
+                            `[data-user-id="${userId}"].follow-btn`
+                        );
+                        if (originalBtn) {
+                            originalBtn.textContent = "Following";
+                            originalBtn.classList.remove(
+                                "bg-blue-600",
+                                "hover:bg-blue-700"
+                            );
+                            originalBtn.classList.add(
+                                "bg-gray-400",
+                                "cursor-not-allowed"
+                            );
+                            originalBtn.disabled = true;
+                        }
+
+                        // Update follower count in UI
+                        updateFollowerCountInUI(userId);
+
+                        showNotification(
+                            `Successfully connected with ${userName}!`,
+                            "success"
+                        );
+
+                        // Close modal after 2 seconds
+                        setTimeout(() => {
+                            userProfileModal.classList.remove("active");
+                        }, 2000);
+                    } else {
+                        throw new Error("Failed to connect");
+                    }
+                } catch (error) {
+                    console.error("Error connecting with user:", error);
+                    connectBtn.disabled = false;
+                    connectBtn.textContent = "Connect";
+                    showNotification(
+                        "Error connecting with user. Please try again.",
+                        "error"
+                    );
+                }
+            });
+        }
+
+        // View Gallery button handler
+        const galleryBtn = userProfileModal.querySelector(
+            "#modal-view-gallery-btn"
+        );
+        if (galleryBtn) {
+            galleryBtn.addEventListener("click", () => {
+                const userId = galleryBtn.dataset.userId;
+                const userName = galleryBtn.dataset.userName;
+
+                // Close user profile modal
+                userProfileModal.classList.remove("active");
+
+                // Show gallery modal
+                handleGalleryView(userId, userName);
+            });
+        }
+    }
 
     // Close modals with Escape key
     document.addEventListener("keydown", (e) => {
@@ -3911,48 +4010,74 @@ export {
 };
 
 // --- Apprentice Dashboard Stats Management ---
-function updateApprenticeStats(userData) {
-    // Update stats based on user activity
-    const stats = {
-        pendingJobs: Math.floor(Math.random() * 5) + 1, // 1-5 pending jobs
-        activeJobs: Math.floor(Math.random() * 3) + 1, // 1-3 active jobs
-        completedJobs: Math.floor(Math.random() * 20) + 5, // 5-25 completed jobs
-        totalEarned: Math.floor(Math.random() * 5000) + 1000, // $1000-$6000 total earned
-        availableBalance: Math.floor(Math.random() * 2000) + 500, // $500-$2500 available
-        thisMonth: Math.floor(Math.random() * 1000) + 200, // $200-$1200 this month
-        goalProgress: Math.floor(Math.random() * 40) + 60, // 60-100% goal progress
-    };
+async function updateApprenticeStats(userData) {
+    try {
+        // Get real stats from database
+        const realStats = await getApprenticeStats(userData.id);
 
-    // Update stats in the UI
-    const statElements = document.querySelectorAll(".stat-card p.text-3xl");
-    if (statElements.length >= 3) {
-        statElements[0].textContent = stats.pendingJobs;
-        statElements[1].textContent = stats.activeJobs;
-        statElements[2].textContent = stats.completedJobs;
+        // Use real data for job statistics
+        const stats = {
+            pendingJobs: realStats.pendingJobs || 0,
+            activeJobs: realStats.activeJobs || 0,
+            completedJobs: realStats.completedJobs || 0,
+            totalEarned: realStats.totalEarned || 0,
+            // Keep some placeholder values for features not yet implemented
+            availableBalance: Math.floor(Math.random() * 3000000) + 750000, // ₦750,000-₦3,750,000 available
+            thisMonth: Math.floor(Math.random() * 1500000) + 300000, // ₦300,000-₦1,800,000 this month
+            goalProgress: Math.floor(Math.random() * 40) + 60, // 60-100% goal progress
+        };
+
+        // Update stats in the UI
+        const statElements = document.querySelectorAll(".stat-card p.text-3xl");
+        if (statElements.length >= 3) {
+            statElements[0].textContent = stats.pendingJobs;
+            statElements[1].textContent = stats.activeJobs;
+            statElements[2].textContent = stats.completedJobs;
+        }
+
+        // Update earnings stats if on earnings page
+        const earningsStats = document.querySelectorAll(
+            ".stat-card p.text-3xl"
+        );
+        if (earningsStats.length >= 4) {
+            earningsStats[0].textContent = `₦${(
+                stats.totalEarned * 1500
+            ).toLocaleString()}`;
+            earningsStats[1].textContent = `₦${(
+                stats.availableBalance * 1500
+            ).toLocaleString()}`;
+            earningsStats[2].textContent = `₦${(
+                stats.thisMonth * 1500
+            ).toLocaleString()}`;
+            earningsStats[3].textContent = `${stats.goalProgress}%`;
+        }
+
+        return stats;
+    } catch (error) {
+        console.error("Error updating apprentice stats:", error);
+        // Return default values if there's an error
+        return {
+            pendingJobs: 0,
+            activeJobs: 0,
+            completedJobs: 0,
+            totalEarned: 0,
+            availableBalance: 0,
+            thisMonth: 0,
+            goalProgress: 0,
+        };
     }
-
-    // Update earnings stats if on earnings page
-    const earningsStats = document.querySelectorAll(".stat-card p.text-3xl");
-    if (earningsStats.length >= 4) {
-        earningsStats[0].textContent = `$${stats.totalEarned.toLocaleString()}`;
-        earningsStats[1].textContent = `$${stats.availableBalance.toLocaleString()}`;
-        earningsStats[2].textContent = `$${stats.thisMonth.toLocaleString()}`;
-        earningsStats[3].textContent = `${stats.goalProgress}%`;
-    }
-
-    return stats;
 }
 
 // --- Real-time Updates ---
 function startRealTimeUpdates(userData) {
     // Update stats every 30 seconds to simulate real-time data
-    setInterval(() => {
+    setInterval(async () => {
         if (
             currentActiveTab === "home" ||
             currentActiveTab === "jobs" ||
             currentActiveTab === "earnings"
         ) {
-            updateApprenticeStats(userData);
+            await updateApprenticeStats(userData);
         }
     }, 30000);
 
@@ -4136,7 +4261,9 @@ async function handleJobCompletion(jobId) {
 
         const result = await completeJob(jobId, user.id);
         showNotification(
-            `Job completed! You earned $${result.payment}`,
+            `Job completed! You earned ₦${(
+                result.payment * 1500
+            ).toLocaleString()}`,
             "success"
         );
 

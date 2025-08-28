@@ -1,100 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up as a Member - Craftnet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <style>
-        body {
-            font-family: "Inter", sans-serif;
-            background-color: #f8f9fa;
-        }
-        .hidden-view {
-            display: none;
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center justify-center py-12 px-4">
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <a href="craftnet-supabase.html" class="text-3xl font-bold text-center block text-gray-900">Craftnet</a>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Create your Member account
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                Already have an account?
-                <a href="login-supabase.html" class="font-medium text-blue-600 hover:text-blue-500">Sign in</a>
-            </p>
-        </div>
-        <form id="signup-member-form" class="mt-8 space-y-6">
-            <div class="rounded-md shadow-sm -space-y-px">
-                <input
-                    id="member-name"
-                    type="text"
-                    required
-                    placeholder="Full Name"
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <input
-                    id="member-email"
-                    type="email"
-                    required
-                    placeholder="Email address"
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <input
-                    id="member-password"
-                    type="password"
-                    required
-                    placeholder="Password"
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <select
-                    id="creative-type"
-                    required
-                    class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="" disabled selected>
-                        Select your Creative Type
-                    </option>
-                    <option>Photographer</option>
-                    <option>Designer</option>
-                    <option>Artisan</option>
-                    <option>Student</option>
-                    <option>Programmer</option>
-                    <option>Other</option>
-                </select>
-            </div>
-            <p id="signup-member-error" class="text-red-500 text-sm hidden-view"></p>
-            <div>
-                <button
-                    type="submit"
-                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                    Sign Up
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <script type="module">
-        import { handleMemberSignup, showError } from './supabase-auth.js';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const signupMemberForm = document.getElementById('signup-member-form');
-            if (signupMemberForm) {
-                signupMemberForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const name = document.getElementById('member-name').value;
-                    const email = document.getElementById('member-email').value;
-                    const password = document.getElementById('member-password').value;
-                    const creativeType = document.getElementById('creative-type').value;
-                    handleMemberSignup(name, email, password, creativeType);
-                });
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sign Up as a Member - Craftnet</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                background-color: #f8f9fa;
             }
-        });
-    </script>
-</body>
+            .hidden-view {
+                display: none;
+            }
+        </style>
+    </head>
+    <body
+        class="min-h-screen flex flex-col items-center justify-center py-12 px-4"
+    >
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <a
+                    href="craftnet-supabase.html"
+                    class="text-3xl font-bold text-center block text-gray-900"
+                    >Craftnet</a
+                >
+                <h2
+                    class="mt-6 text-center text-3xl font-extrabold text-gray-900"
+                >
+                    Create your Member account
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Already have an account?
+                    <a
+                        href="login-supabase.html"
+                        class="font-medium text-blue-600 hover:text-blue-500"
+                        >Sign in</a
+                    >
+                </p>
+            </div>
+            <form id="signup-member-form" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <input
+                        id="member-name"
+                        type="text"
+                        required
+                        placeholder="Full Name"
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <input
+                        id="member-email"
+                        type="email"
+                        required
+                        placeholder="Email address"
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <input
+                        id="member-password"
+                        type="password"
+                        required
+                        placeholder="Password"
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <select
+                        id="creative-type"
+                        required
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 bg-white text-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="" disabled selected>
+                            Select your Creative Type
+                        </option>
+                        <option>Photographer</option>
+                        <option>Designer</option>
+                        <option>Artisan</option>
+                        <option>Student</option>
+                        <option>Programmer</option>
+                        <option>Other</option>
+                    </select>
+                    <input
+                        id="referral-code"
+                        type="text"
+                        placeholder="Referral Code (Optional)"
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <p
+                    id="signup-member-error"
+                    class="text-red-500 text-sm hidden-view"
+                ></p>
+                <div>
+                    <button
+                        type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <script type="module">
+            import { handleMemberSignup, showError } from "./supabase-auth.js";
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const signupMemberForm =
+                    document.getElementById("signup-member-form");
+
+                // Handle referral code from URL parameter
+                function getReferralCodeFromUrl() {
+                    const urlParams = new URLSearchParams(
+                        window.location.search
+                    );
+                    return urlParams.get("ref");
+                }
+
+                // Pre-fill referral code if present in URL
+                const urlReferralCode = getReferralCodeFromUrl();
+                if (urlReferralCode) {
+                    const referralCodeInput =
+                        document.getElementById("referral-code");
+                    referralCodeInput.value = urlReferralCode;
+                    referralCodeInput.readOnly = true;
+                    referralCodeInput.classList.add("bg-gray-100");
+
+                    // Show a message that referral code was applied
+                    const referralMessage = document.createElement("p");
+                    referralMessage.className = "text-green-600 text-sm mt-2";
+                    referralMessage.textContent = `Referral code applied: ${urlReferralCode}`;
+                    referralCodeInput.parentNode.appendChild(referralMessage);
+                }
+
+                if (signupMemberForm) {
+                    signupMemberForm.addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        const name =
+                            document.getElementById("member-name").value;
+                        const email =
+                            document.getElementById("member-email").value;
+                        const password =
+                            document.getElementById("member-password").value;
+                        const creativeType =
+                            document.getElementById("creative-type").value;
+                        const referralCode = document
+                            .getElementById("referral-code")
+                            .value.trim();
+
+                        handleMemberSignup(
+                            name,
+                            email,
+                            password,
+                            creativeType,
+                            referralCode || null
+                        );
+                    });
+                }
+            });
+        </script>
+    </body>
 </html>

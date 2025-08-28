@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test Referral System</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 p-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">Referral System Test</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Test Referral Code Generation -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">
+                        Test Referral Code Generation
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2"
+                                >User ID:</label
+                            >
+                            <input
+                                type="text"
+                                id="test-user-id"
+                                placeholder="Enter user ID"
+                                class="w-full px-3 py-2 border rounded-lg"
+                            />
+                        </div>
+                        <button
+                            onclick="testGenerateCode()"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        >
+                            Generate Referral Code
+                        </button>
+                        <div id="generate-result" class="text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Test Referral Code Validation -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">
+                        Test Referral Code Validation
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2"
+                                >Referral Code:</label
+                            >
+                            <input
+                                type="text"
+                                id="test-referral-code"
+                                placeholder="Enter referral code"
+                                class="w-full px-3 py-2 border rounded-lg"
+                            />
+                        </div>
+                        <button
+                            onclick="testValidateCode()"
+                            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                        >
+                            Validate Code
+                        </button>
+                        <div id="validate-result" class="text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Test Referral Links -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Test Referral Links</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2"
+                                >Referral Code:</label
+                            >
+                            <input
+                                type="text"
+                                id="test-link-code"
+                                placeholder="Enter referral code"
+                                class="w-full px-3 py-2 border rounded-lg"
+                            />
+                        </div>
+                        <button
+                            onclick="generateTestLinks()"
+                            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                        >
+                            Generate Test Links
+                        </button>
+                        <div id="link-results" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <!-- Database Status -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">Database Status</h2>
+                    <button
+                        onclick="checkDatabaseStatus()"
+                        class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 mb-4"
+                    >
+                        Check Database Tables
+                    </button>
+                    <div id="db-status" class="text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Console Log</h2>
+                <div
+                    id="console-log"
+                    class="bg-gray-900 text-green-400 p-4 rounded text-sm font-mono h-64 overflow-y-auto"
+                ></div>
+            </div>
+        </div>
+
+        <script type="module">
+            import {
+                supabase,
+                generateReferralCode,
+                validateReferralCode,
+                getUserReferralCode,
+            } from "./supabase-auth.js";
+
+            // Override console.log to capture output
+            const originalLog = console.log;
+            const originalError = console.error;
+            const consoleLogDiv = document.getElementById("console-log");
+
+            function addToLog(message, type = "log") {
+                const timestamp = new Date().toLocaleTimeString();
+                const color =
+                    type === "error" ? "text-red-400" : "text-green-400";
+                consoleLogDiv.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+                consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
+            }
+
+            console.log = function (...args) {
+                originalLog.apply(console, args);
+                addToLog(args.join(" "));
+            };
+
+            console.error = function (...args) {
+                originalError.apply(console, args);
+                addToLog(args.join(" "), "error");
+            };
+
+            // Test functions
+            window.testGenerateCode = async function () {
+                const userId = document.getElementById("test-user-id").value;
+                const resultDiv = document.getElementById("generate-result");
+
+                if (!userId) {
+                    resultDiv.innerHTML =
+                        '<div class="text-red-600">Please enter a user ID</div>';
+                    return;
+                }
+
+                try {
+                    console.log(
+                        "Testing referral code generation for user:",
+                        userId
+                    );
+                    const code = await generateReferralCode(userId);
+                    resultDiv.innerHTML = `<div class="text-green-600">Generated code: <span class="font-mono">${code}</span></div>`;
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`;
+                    console.error("Generate code error:", error);
+                }
+            };
+
+            window.testValidateCode = async function () {
+                const code =
+                    document.getElementById("test-referral-code").value;
+                const resultDiv = document.getElementById("validate-result");
+
+                if (!code) {
+                    resultDiv.innerHTML =
+                        '<div class="text-red-600">Please enter a referral code</div>';
+                    return;
+                }
+
+                try {
+                    console.log("Testing referral code validation:", code);
+                    const result = await validateReferralCode(code);
+                    if (result) {
+                        resultDiv.innerHTML = `<div class="text-green-600">Valid code! User ID: ${result.user_id}</div>`;
+                    } else {
+                        resultDiv.innerHTML =
+                            '<div class="text-red-600">Invalid or inactive code</div>';
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`;
+                    console.error("Validate code error:", error);
+                }
+            };
+
+            window.generateTestLinks = function () {
+                const code = document.getElementById("test-link-code").value;
+                const resultsDiv = document.getElementById("link-results");
+
+                if (!code) {
+                    resultsDiv.innerHTML =
+                        '<div class="text-red-600">Please enter a referral code</div>';
+                    return;
+                }
+
+                const baseUrl = window.location.origin;
+                const links = {
+                    "Main Page": `${baseUrl}/craftnet-supabase.html?ref=${code}`,
+                    "Member Signup": `${baseUrl}/signup-member-supabase.html?ref=${code}`,
+                    "Apprentice Signup": `${baseUrl}/signup-apprentice-supabase.html?ref=${code}`,
+                };
+
+                resultsDiv.innerHTML = Object.entries(links)
+                    .map(
+                        ([name, url]) => `
+                <div class="border rounded p-3">
+                    <div class="font-semibold text-sm mb-1">${name}:</div>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" value="${url}" readonly 
+                               class="flex-1 px-2 py-1 text-xs border rounded bg-gray-50">
+                        <button onclick="navigator.clipboard.writeText('${url}')" 
+                                class="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            `
+                    )
+                    .join("");
+            };
+
+            window.checkDatabaseStatus = async function () {
+                const statusDiv = document.getElementById("db-status");
+
+                try {
+                    console.log("Checking database tables...");
+
+                    // Check referral_codes table
+                    const { data: codes, error: codesError } = await supabase
+                        .from("referral_codes")
+                        .select("count")
+                        .limit(1);
+
+                    // Check referrals table
+                    const { data: referrals, error: referralsError } =
+                        await supabase
+                            .from("referrals")
+                            .select("count")
+                            .limit(1);
+
+                    let status = "";
+                    status += `<div class="mb-2"><span class="font-medium">Referral Codes table:</span> `;
+                    status += codesError
+                        ? `<span class="text-red-600">Error: ${codesError.message}</span>`
+                        : '<span class="text-green-600">✓ Accessible</span>';
+                    status += "</div>";
+
+                    status += `<div class="mb-2"><span class="font-medium">Referrals table:</span> `;
+                    status += referralsError
+                        ? `<span class="text-red-600">Error: ${referralsError.message}</span>`
+                        : '<span class="text-green-600">✓ Accessible</span>';
+                    status += "</div>";
+
+                    statusDiv.innerHTML = status;
+                } catch (error) {
+                    statusDiv.innerHTML = `<div class="text-red-600">Error checking database: ${error.message}</div>`;
+                    console.error("Database check error:", error);
+                }
+            };
+
+            // Initialize
+            console.log("Referral system test page loaded");
+        </script>
+    </body>
+</html>
+
+

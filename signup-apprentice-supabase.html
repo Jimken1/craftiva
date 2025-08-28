@@ -47,6 +47,10 @@
                     <label for="apprentice-password" class="block text-sm font-medium text-gray-700">Password</label>
                     <input type="password" id="apprentice-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
+                <div>
+                    <label for="referral-code" class="block text-sm font-medium text-gray-700">Referral Code (Optional)</label>
+                    <input type="text" id="referral-code" placeholder="Enter referral code" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </div>
             <p id="signup-apprentice-error" class="text-red-500 text-sm hidden"></p>
             <div>
@@ -60,6 +64,28 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const signupApprenticeForm = document.getElementById('signup-apprentice-form');
+            
+            // Handle referral code from URL parameter
+            function getReferralCodeFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('ref');
+            }
+            
+            // Pre-fill referral code if present in URL
+            const urlReferralCode = getReferralCodeFromUrl();
+            if (urlReferralCode) {
+                const referralCodeInput = document.getElementById('referral-code');
+                referralCodeInput.value = urlReferralCode;
+                referralCodeInput.readOnly = true;
+                referralCodeInput.classList.add('bg-gray-100');
+                
+                // Show a message that referral code was applied
+                const referralMessage = document.createElement('p');
+                referralMessage.className = 'text-green-600 text-sm mt-2';
+                referralMessage.textContent = `Referral code applied: ${urlReferralCode}`;
+                referralCodeInput.parentNode.appendChild(referralMessage);
+            }
+            
             if (signupApprenticeForm) {
                 signupApprenticeForm.addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -68,7 +94,9 @@
                     const location = document.getElementById('apprentice-location').value;
                     const email = document.getElementById('apprentice-email').value;
                     const password = document.getElementById('apprentice-password').value;
-                    handleApprenticeSignup(name, skill, location, email, password);
+                    const referralCode = document.getElementById('referral-code').value.trim();
+                    
+                    handleApprenticeSignup(name, skill, location, email, password, referralCode || null);
                 });
             }
         });

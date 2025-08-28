@@ -18,6 +18,146 @@ export function showError(elementId, message) {
     }
 }
 
+// --- Referral System Functions ---
+
+// Generate a unique referral code for a user
+export async function generateReferralCode(userId) {
+    try {
+        // Check if user already has a referral code
+        const { data: existingCode, error: checkError } = await supabase
+            .from("referral_codes")
+            .select("id, code")
+            .eq("user_id", userId)
+            .eq("is_active", true)
+            .single();
+
+        if (checkError && checkError.code !== "PGRST116") {
+            throw checkError;
+        }
+
+        if (existingCode) {
+            return existingCode.code;
+        }
+
+        // Generate new referral code using the database function
+        const { data: newCode, error: generateError } = await supabase
+            .from("referral_codes")
+            .insert({
+                user_id: userId,
+                code: await supabase.rpc("generate_referral_code"),
+                is_active: true,
+            })
+            .select("code")
+            .single();
+
+        if (generateError) throw generateError;
+        return newCode.code;
+    } catch (error) {
+        console.error("Error generating referral code:", error);
+        throw error;
+    }
+}
+
+// Get user's referral code
+export async function getUserReferralCode(userId) {
+    try {
+        const { data, error } = await supabase
+            .from("referral_codes")
+            .select("code, total_referrals, created_at")
+            .eq("user_id", userId)
+            .eq("is_active", true)
+            .single();
+
+        if (error && error.code === "PGRST116") {
+            // No referral code exists, generate one
+            const code = await generateReferralCode(userId);
+            return {
+                code: code,
+                total_referrals: 0,
+                created_at: new Date().toISOString(),
+            };
+        }
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error getting user referral code:", error);
+        throw error;
+    }
+}
+
+// Validate a referral code
+export async function validateReferralCode(code) {
+    try {
+        const { data, error } = await supabase
+            .from("referral_codes")
+            .select("id, user_id, is_active")
+            .eq("code", code.toUpperCase())
+            .eq("is_active", true)
+            .single();
+
+        if (error && error.code === "PGRST116") {
+            return null; // Code not found
+        }
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error validating referral code:", error);
+        return null;
+    }
+}
+
+// Award referral points when a new user signs up
+export async function awardReferralPoints(
+    referrerUserId,
+    referredUserId,
+    referralCodeId
+) {
+    try {
+        const { data, error } = await supabase.rpc("award_referral_points", {
+            referrer_user_id: referrerUserId,
+            referred_user_id: referredUserId,
+            referral_code_id: referralCodeId,
+        });
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error awarding referral points:", error);
+        throw error;
+    }
+}
+
+// Get user's referral statistics
+export async function getUserReferralStats(userId) {
+    try {
+        const { data, error } = await supabase
+            .from("referrals")
+            .select(
+                `
+                id,
+                referred_user:profiles!referrals_referred_user_id_fkey(
+                    id,
+                    name,
+                    email,
+                    created_at
+                ),
+                points_awarded,
+                created_at
+            `
+            )
+            .eq("referrer_id", userId)
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error getting referral stats:", error);
+        throw error;
+    }
+}
+
 // --- Authentication Functions ---
 export async function handleLogin(email, password) {
     try {
@@ -34,7 +174,13 @@ export async function handleLogin(email, password) {
     }
 }
 
-export async function handleMemberSignup(name, email, password, creativeType) {
+export async function handleMemberSignup(
+    name,
+    email,
+    password,
+    creativeType,
+    referralCode = null
+) {
     try {
         // Step 1: Sign up the user
         const { data: authData, error: authError } = await supabase.auth.signUp(
@@ -65,6 +211,7 @@ export async function handleMemberSignup(name, email, password, creativeType) {
                 email: email,
                 role: "member",
                 creative_type: creativeType,
+                description: "",
                 eligibility_points: 0,
                 referral_points: 0,
                 referrals: 0,
@@ -84,6 +231,24 @@ export async function handleMemberSignup(name, email, password, creativeType) {
             // Don't throw error here, profile might already exist
         }
 
+        // Step 3: Handle referral if provided
+        if (referralCode) {
+            try {
+                const referralData = await validateReferralCode(referralCode);
+                if (referralData && referralData.user_id !== authData.user.id) {
+                    await awardReferralPoints(
+                        referralData.user_id,
+                        authData.user.id,
+                        referralData.id
+                    );
+                    console.log("Referral points awarded successfully");
+                }
+            } catch (referralError) {
+                console.warn("Referral processing failed:", referralError);
+                // Don't fail the signup if referral fails
+            }
+        }
+
         // Always redirect to dashboard on successful auth
         window.location.href = "dashboard-supabase.html";
     } catch (error) {
@@ -97,7 +262,8 @@ export async function handleApprenticeSignup(
     skill,
     location,
     email,
-    password
+    password,
+    referralCode = null
 ) {
     try {
         // Step 1: Sign up the user
@@ -131,6 +297,7 @@ export async function handleApprenticeSignup(
                 role: "apprentice",
                 skill: skill,
                 location: location,
+                description: "",
                 followers: 0,
                 following: 0,
                 created_at: new Date().toISOString(),
@@ -144,6 +311,24 @@ export async function handleApprenticeSignup(
         if (profileError) {
             console.warn("Profile creation warning:", profileError);
             // Don't throw error here, profile might already exist
+        }
+
+        // Step 3: Handle referral if provided
+        if (referralCode) {
+            try {
+                const referralData = await validateReferralCode(referralCode);
+                if (referralData && referralData.user_id !== authData.user.id) {
+                    await awardReferralPoints(
+                        referralData.user_id,
+                        authData.user.id,
+                        referralData.id
+                    );
+                    console.log("Referral points awarded successfully");
+                }
+            } catch (referralError) {
+                console.warn("Referral processing failed:", referralError);
+                // Don't fail the signup if referral fails
+            }
         }
 
         // Always redirect to dashboard on successful auth
@@ -225,6 +410,7 @@ async function createBasicProfile(userId, metadata) {
 
     if (metadata.role === "member") {
         profileData.creative_type = metadata.creative_type || "Other";
+        profileData.description = "";
         profileData.eligibility_points = 0;
         profileData.referral_points = 0;
         profileData.referrals = 0;
@@ -232,6 +418,7 @@ async function createBasicProfile(userId, metadata) {
     } else if (metadata.role === "apprentice") {
         profileData.skill = metadata.skill || "Not specified";
         profileData.location = metadata.location || "Not specified";
+        profileData.description = "";
     }
 
     profileData.followers = 0;
@@ -1137,6 +1324,7 @@ export async function getApprenticeStats(apprenticeId) {
             totalEarned: data.total_earnings || 0,
             completedJobs: data.completed_jobs || 0,
             pendingJobs: pendingApplications || 0,
+            pendingApplications: pendingApplications || 0,
             activeJobs: activeJobs || 0,
         };
     } catch (error) {

@@ -37,7 +37,7 @@
             </nav>
             <div class="flex items-center space-x-4">
                 <a href="login-supabase.html" class="text-gray-600 hover:text-gray-900 font-medium">Log In</a>
-                <a href="signup-member-supabase.html" class="bg-gray-900 text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-gray-800 btn">Sign Up</a>
+                <a href="signup-member-supabase.html" id="signup-member-link" class="bg-gray-900 text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-gray-800 btn">Sign Up</a>
             </div>
         </div>
     </header>
@@ -53,10 +53,10 @@
                     For photographers, designers, artisans, students, video editors, and recent grads. A simple platform to earn, grow, and get seen — all in one place.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                    <a href="signup-member-supabase.html" class="w-full sm:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-700 btn">
+                    <a href="signup-member-supabase.html" id="hero-member-link" class="w-full sm:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-700 btn">
                         Sign Up as Member
                     </a>
-                    <a href="signup-apprentice-supabase.html" class="w-full sm:w-auto bg-white text-blue-600 border border-blue-600 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-50 btn">
+                    <a href="signup-apprentice-supabase.html" id="hero-apprentice-link" class="w-full sm:w-auto bg-white text-blue-600 border border-blue-600 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:bg-blue-50 btn">
                         Sign Up as Apprentice
                     </a>
                 </div>
@@ -111,6 +111,33 @@
 
     <script>
         feather.replace();
+        
+        // Handle referral codes from URL parameters
+        function getReferralCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ref');
+        }
+        
+        function updateSignupLinks() {
+            const referralCode = getReferralCode();
+            if (referralCode) {
+                const memberLinks = document.querySelectorAll('#signup-member-link, #hero-member-link');
+                const apprenticeLinks = document.querySelectorAll('#hero-apprentice-link');
+                
+                memberLinks.forEach(link => {
+                    link.href = `signup-member-supabase.html?ref=${referralCode}`;
+                });
+                
+                apprenticeLinks.forEach(link => {
+                    link.href = `signup-apprentice-supabase.html?ref=${referralCode}`;
+                });
+                
+                console.log('Referral code detected:', referralCode);
+            }
+        }
+        
+        // Update links when page loads
+        document.addEventListener('DOMContentLoaded', updateSignupLinks);
     </script>
 </body>
 </html>
